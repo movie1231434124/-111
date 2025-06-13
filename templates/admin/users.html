@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}用户管理 - 管理员面板{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+<div class="fade-in-up">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-center mb-4">👥 用户管理</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_panel') }}">管理员面板</a></li>
+                    <li class="breadcrumb-item active">用户管理</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- 用户列表 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">📋 用户列表</h5>
+                    <span class="badge bg-primary">总计: {{ users|length }} 个用户</span>
+                </div>
+                <div class="card-body">
+                    {% if users %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>用户名</th>
+                                    <th>角色</th>
+                                    <th>邮箱</th>
+                                    <th>注册时间</th>
+                                    <th>评分数</th>
+                                    <th>评论数</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ user.username }}</strong>
+                                        {% if user.username == 'admin' %}
+                                            <i class="fas fa-crown text-warning ms-1" title="超级管理员"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if user.role == 'admin' %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-shield-alt me-1"></i>管理员
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-primary">
+                                                <i class="fas fa-user me-1"></i>普通用户
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ user.email or '未设置' }}</small>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ user.registered_at.strftime('%Y-%m-%d') if user.registered_at else '未知' }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ user.total_ratings }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">{{ user.total_comments }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('admin_edit_user', username=user.username) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i> 编辑
+                                            </a>
+                                            {% if user.username != 'admin' %}
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    onclick="confirmDelete('{{ user.username }}')">
+                                                <i class="fas fa-trash"></i> 删除
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">暂无用户数据</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户统计 -->
+    <div class="row mt-4">
+        <div class="col-md-4 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h4 class="text-primary">{{ users|selectattr('role', 'equalto', 'admin')|list|length }}</h4>
+                    <p class="text-muted mb-0">管理员用户</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h4 class="text-success">{{ users|selectattr('role', 'equalto', 'user')|list|length }}</h4>
+                    <p class="text-muted mb-0">普通用户</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h4 class="text-info">{{ users|sum(attribute='total_ratings') }}</h4>
+                    <p class="text-muted mb-0">总评分数</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 删除确认模态框 -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">确认删除</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除用户 <strong id="deleteUsername"></strong> 吗？</p>
+                <p class="text-danger">此操作将删除该用户的所有数据，包括评分和评论，且无法恢复！</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">确认删除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(username) {
+    document.getElementById('deleteUsername').textContent = username;
+    document.getElementById('deleteForm').action = `/admin/users/${username}/delete`;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+</div>
+{% endblock %} 

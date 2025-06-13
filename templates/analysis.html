@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}电影分析 - 电影评分系统{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- 分析页面标题区域 -->
+    <div class="analysis-header mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="analysis-title">
+                    <i class="fas fa-chart-pie me-3"></i>
+                    深度数据分析
+                </h1>
+                <p class="analysis-subtitle">挖掘电影数据背后的故事，洞察用户行为模式</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="analysis-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">3</span>
+                        <span class="stat-label">分析维度</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要分析图表区域 -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="analysis-chart-card featured-chart">
+                <div class="chart-header">
+                    <div class="chart-title-section">
+                        <h4 class="chart-title">
+                            <i class="fas fa-scatter-chart me-2"></i>
+                            评分数量 vs 平均评分关系分析
+                        </h4>
+                        <p class="chart-description">探索电影受欢迎程度与质量评价的相关性</p>
+                    </div>
+                    <div class="chart-controls">
+                        <button class="btn btn-sm btn-outline-light me-2">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-light">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <img src="data:image/png;base64,{{ plot1_url }}" alt="评分数量vs平均评分散点图" class="chart-image">
+                </div>
+                <div class="chart-insights">
+                    <div class="insight-tag">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>高评分数量通常对应更稳定的平均评分</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 双图表对比区域 -->
+    <div class="row mb-5">
+        <div class="col-lg-6 mb-4">
+            <div class="analysis-chart-card">
+                <div class="chart-header">
+                    <div class="chart-title-section">
+                        <h5 class="chart-title">
+                            <i class="fas fa-users me-2"></i>
+                            用户活跃度分布
+                        </h5>
+                        <p class="chart-description">用户评分行为的长尾分布特征</p>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <img src="data:image/png;base64,{{ plot2_url }}" alt="用户评分活跃度分布图" class="chart-image">
+                </div>
+                <div class="activity-analysis">
+                    <h6 class="activity-title">用户活跃度分布</h6>
+                    <div class="activity-breakdown">
+                        <div class="activity-item">
+                            <div class="activity-info">
+                                <div class="activity-dot low"></div>
+                                <span class="activity-label">低活跃用户</span>
+                            </div>
+                            <span class="activity-percentage">80%</span>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-info">
+                                <div class="activity-dot medium"></div>
+                                <span class="activity-label">中等活跃</span>
+                            </div>
+                            <span class="activity-percentage">15%</span>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-info">
+                                <div class="activity-dot high"></div>
+                                <span class="activity-label">高活跃用户</span>
+                            </div>
+                            <span class="activity-percentage">5%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="analysis-chart-card">
+                <div class="chart-header">
+                    <div class="chart-title-section">
+                        <h5 class="chart-title">
+                            <i class="fas fa-fire me-2"></i>
+                            热门电影评分对比
+                        </h5>
+                        <p class="chart-description">TOP5电影的评分分布模式</p>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <img src="data:image/png;base64,{{ plot3_url }}" alt="热门电影评分分布对比图" class="chart-image">
+                </div>
+                <div class="score-statistics">
+                    <h6 class="score-title">评分统计指标</h6>
+                    <div class="score-metrics">
+                        <div class="score-metric">
+                            <div class="score-info">
+                                <div class="score-icon avg">★</div>
+                                <span class="score-label">平均评分</span>
+                            </div>
+                            <span class="score-value">4.2</span>
+                        </div>
+                        <div class="score-metric">
+                            <div class="score-info">
+                                <div class="score-icon total">#</div>
+                                <span class="score-label">平均评分数</span>
+                            </div>
+                            <span class="score-value">1.2K</span>
+                        </div>
+                        <div class="score-metric">
+                            <div class="score-info">
+                                <div class="score-icon std">σ</div>
+                                <span class="score-label">评分标准差</span>
+                            </div>
+                            <span class="score-value">0.8</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 洞察与建议区域 -->
+    <div class="row mb-5">
+        <div class="col-lg-8 mb-4">
+            <div class="insights-panel">
+                <div class="panel-header">
+                    <h4 class="panel-title">
+                        <i class="fas fa-brain me-2"></i>
+                        数据洞察与发现
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="insight-card">
+                                <div class="insight-icon bg-gradient-primary">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <h6>评分稳定性规律</h6>
+                                    <p>评分数量超过100的电影，其平均评分趋于稳定，标准差降低约30%</p>
+                                    <div class="insight-progress">
+                                        <div class="progress-bar" style="width: 85%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="insight-card">
+                                <div class="insight-icon bg-gradient-success">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <h6>用户行为模式</h6>
+                                    <p>符合帕累托法则，20%的活跃用户贡献了80%的评分数据</p>
+                                    <div class="insight-progress">
+                                        <div class="progress-bar" style="width: 92%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="insight-card">
+                                <div class="insight-icon bg-gradient-warning">
+                                    <i class="fas fa-fire"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <h6>热门电影特征</h6>
+                                    <p>TOP5电影评分分布呈现双峰模式，反映观众偏好的两极化</p>
+                                    <div class="insight-progress">
+                                        <div class="progress-bar" style="width: 78%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="insight-card">
+                                <div class="insight-icon bg-gradient-info">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <h6>评分质量指标</h6>
+                                    <p>高质量电影的评分方差较小，用户评价更加一致</p>
+                                    <div class="insight-progress">
+                                        <div class="progress-bar" style="width: 88%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="recommendations-panel">
+                <div class="panel-header">
+                    <h4 class="panel-title">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        策略建议
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <div class="recommendation-item">
+                        <div class="rec-number">01</div>
+                        <div class="rec-content">
+                            <h6>智能推荐优化</h6>
+                            <p>基于评分数量和分布特征，动态调整推荐算法权重</p>
+                        </div>
+                    </div>
+                    <div class="recommendation-item">
+                        <div class="rec-number">02</div>
+                        <div class="rec-content">
+                            <h6>用户分层服务</h6>
+                            <p>针对不同活跃度用户群体，提供差异化的个性化服务</p>
+                        </div>
+                    </div>
+                    <div class="recommendation-item">
+                        <div class="rec-number">03</div>
+                        <div class="rec-content">
+                            <h6>质量控制机制</h6>
+                            <p>建立评分数量阈值，确保推荐电影的可靠性</p>
+                        </div>
+                    </div>
+                    <div class="recommendation-item">
+                        <div class="rec-number">04</div>
+                        <div class="rec-content">
+                            <h6>争议电影识别</h6>
+                            <p>通过评分分布模式，识别并特殊处理争议性电影</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导航操作区域 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="navigation-panel">
+                <div class="nav-content">
+                    <h5>继续探索数据</h5>
+                    <p>深入了解更多数据维度和用户行为模式</p>
+                </div>
+                <div class="nav-actions">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light me-2">
+                        <i class="fas fa-chart-bar me-2"></i>返回仪表板
+                    </a>
+                    <a href="{{ url_for('user_analysis') }}" class="btn btn-primary">
+                        <i class="fas fa-users me-2"></i>用户分析
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

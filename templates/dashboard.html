@@ -1,0 +1,630 @@
+{% extends "base.html" %}
+
+{% block title %}数据仪表板 - 电影评分系统{% endblock %}
+
+{% block content %}
+<style>
+.metric-subtitle {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 2px;
+    font-style: italic;
+}
+</style>
+<div class="container-fluid px-4">
+    <!-- 页面标题区域 -->
+    <div class="dashboard-header mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="dashboard-title">
+                    <i class="fas fa-chart-line me-3"></i>
+                    数据仪表板
+                </h1>
+                <p class="dashboard-subtitle">实时监控系统数据，洞察用户行为趋势</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="dashboard-time">
+                    <i class="fas fa-clock me-2"></i>
+                    <span id="currentTime"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 核心统计卡片 -->
+    <div class="row mb-5">
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="metric-card metric-card-primary">
+                <div class="metric-icon">
+                    <i class="fas fa-film"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-number">{{ stats.total_movies }}</div>
+                    <div class="metric-label">电影总数</div>
+                    <div class="metric-trend">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+12% 本月</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="metric-card metric-card-success">
+                <div class="metric-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-number">{{ stats.total_ratings }}</div>
+                    <div class="metric-label">评分总数</div>
+                    <div class="metric-trend">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+8% 本周</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="metric-card metric-card-info">
+                <div class="metric-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-number">{{ stats.active_users }}</div>
+                    <div class="metric-label">活跃用户</div>
+                    <div class="metric-subtitle">有评论历史</div>
+                    <div class="metric-trend">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+15% 本月</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="metric-card metric-card-warning">
+                <div class="metric-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-number">{{ "%.1f"|format(stats.avg_rating) }}</div>
+                    <div class="metric-label">平均评分</div>
+                    <div class="metric-trend">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+0.2 本月</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 扩展统计卡片 -->
+    <div class="row mb-5">
+        <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
+            <div class="metric-card metric-card-secondary">
+                <div class="metric-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-number">{{ stats.total_users }}</div>
+                    <div class="metric-label">注册用户</div>
+                    <div class="metric-trend">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+5% 本月</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
+            <div class="metric-card metric-card-success">
+                <div class="metric-icon">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-number">{{ "%.1f"|format((stats.active_users / stats.total_users * 100) if stats.total_users > 0 else 0) }}%</div>
+                    <div class="metric-label">用户活跃率</div>
+                    <div class="metric-trend">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+2.5% 本月</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
+            <div class="metric-card metric-card-info">
+                <div class="metric-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-number">{{ stats.total_interactions }}</div>
+                    <div class="metric-label">总互动次数</div>
+                    <div class="metric-trend">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+25% 本周</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 数据可视化区域 -->
+    <div class="row mb-5">
+        <div class="col-lg-8 mb-4">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5 class="chart-title">
+                        <i class="fas fa-chart-line me-2"></i>
+                        电影发布趋势分析
+                    </h5>
+                    <div class="chart-actions">
+                        <button class="btn btn-sm btn-outline-light">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-light">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <img src="data:image/png;base64,{{ plot3_url }}" alt="电影发布趋势图" class="chart-image">
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5 class="chart-title">
+                        <i class="fas fa-star me-2"></i>
+                        评分分布
+                    </h5>
+                </div>
+                <div class="chart-body">
+                    <img src="data:image/png;base64,{{ plot1_url }}" alt="评分分布图" class="chart-image">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-lg-6 mb-4">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5 class="chart-title">
+                        <i class="fas fa-film me-2"></i>
+                        热门电影类型
+                    </h5>
+                    <div class="chart-subtitle">基于电影数量统计</div>
+                    <div class="chart-controls">
+                        <button class="btn btn-sm btn-outline-light me-2" onclick="toggleChartType('genreChart')">
+                            <i class="fas fa-chart-bar me-1"></i>切换类型
+                        </button>
+                        <button class="btn btn-sm btn-outline-light" onclick="loadInteractiveChart('genre_distribution', 'genreChart')">
+                            <i class="fas fa-mouse-pointer me-1"></i>交互模式
+                        </button>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <img id="genreStaticChart" src="data:image/png;base64,{{ plot2_url }}" alt="电影类型分布图" class="chart-image">
+                    <canvas id="genreChart" style="display: none; width: 100%; height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="insight-card">
+                <div class="insight-header">
+                    <h5 class="insight-title">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        数据洞察
+                    </h5>
+                </div>
+                <div class="insight-body">
+                    <div class="insight-item">
+                        <div class="insight-icon bg-primary">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="insight-content">
+                            <h6>最受欢迎类型</h6>
+                            <p>剧情片占据主导地位，占总数的35%</p>
+                        </div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="insight-icon bg-success">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="insight-content">
+                            <h6>评分趋势</h6>
+                            <p>平均评分呈上升趋势，用户满意度提升</p>
+                        </div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="insight-icon bg-warning">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="insight-content">
+                            <h6>用户活跃度</h6>
+                            <p>月活跃用户增长15%，社区互动活跃</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快速操作区域 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="action-card">
+                <div class="action-header">
+                    <h5 class="action-title">
+                        <i class="fas fa-rocket me-2"></i>
+                        快速操作
+                    </h5>
+                </div>
+                <div class="action-body">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{{ url_for('analysis') }}" class="action-item">
+                                <div class="action-icon bg-primary">
+                                    <i class="fas fa-chart-pie"></i>
+                                </div>
+                                <div class="action-content">
+                                    <h6>深度分析</h6>
+                                    <p>查看详细数据分析</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{{ url_for('user_analysis') }}" class="action-item">
+                                <div class="action-icon bg-success">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="action-content">
+                                    <h6>用户分析</h6>
+                                    <p>用户行为数据</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{{ url_for('rankings') }}" class="action-item">
+                                <div class="action-icon bg-warning">
+                                    <i class="fas fa-trophy"></i>
+                                </div>
+                                <div class="action-content">
+                                    <h6>排行榜</h6>
+                                    <p>热门电影排名</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{{ url_for('community') }}" class="action-item">
+                                <div class="action-icon bg-info">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <div class="action-content">
+                                    <h6>社区讨论</h6>
+                                    <p>用户互动交流</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 图表交互功能
+let currentChartType = 'bar';
+let chartInstances = {};
+
+// 切换图表类型
+function toggleChartType(chartId) {
+    if (chartInstances[chartId]) {
+        currentChartType = currentChartType === 'bar' ? 'doughnut' : 'bar';
+        updateChartType(chartId, currentChartType);
+    }
+}
+
+// 加载交互式图表
+async function loadInteractiveChart(dataType, canvasId) {
+    try {
+        const response = await fetch(`/api/chart_data/${dataType}`);
+        const data = await response.json();
+        
+        if (data.error) {
+            console.error('Error loading chart data:', data.error);
+            return;
+        }
+        
+        // 隐藏静态图表，显示交互式图表
+        document.getElementById(canvasId.replace('Chart', 'StaticChart')).style.display = 'none';
+        document.getElementById(canvasId).style.display = 'block';
+        
+        createInteractiveChart(canvasId, data);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// 创建交互式图表
+function createInteractiveChart(canvasId, data) {
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    
+    // 销毁现有图表
+    if (chartInstances[canvasId]) {
+        chartInstances[canvasId].destroy();
+    }
+    
+    const chartConfig = {
+        type: currentChartType,
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: data.y_label,
+                data: data.values,
+                backgroundColor: generateColors(data.values.length),
+                borderColor: generateColors(data.values.length, 0.8),
+                borderWidth: 2,
+                hoverBackgroundColor: generateColors(data.values.length, 0.8),
+                hoverBorderColor: '#fff',
+                hoverBorderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: data.title,
+                    font: {
+                        size: 16,
+                        weight: 'bold'
+                    },
+                    color: '#2c3e50'
+                },
+                legend: {
+                    display: currentChartType === 'doughnut',
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#3498db',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    displayColors: true,
+                    callbacks: {
+                        title: function(context) {
+                            return `${data.x_label}: ${context[0].label}`;
+                        },
+                        label: function(context) {
+                            const value = context.parsed.y || context.parsed;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${data.y_label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            scales: currentChartType === 'bar' ? {
+                x: {
+                    title: {
+                        display: true,
+                        text: data.x_label,
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    ticks: {
+                        maxRotation: 45,
+                        font: {
+                            size: 11
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: data.y_label,
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        }
+                    }
+                }
+            } : {},
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            onHover: (event, elements) => {
+                event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+            },
+            onClick: (event, elements) => {
+                if (elements.length > 0) {
+                    const index = elements[0].index;
+                    const label = data.labels[index];
+                    const value = data.values[index];
+                    
+                    // 显示详细信息
+                    showChartDetails(label, value, data);
+                }
+            }
+        }
+    };
+    
+    chartInstances[canvasId] = new Chart(ctx, chartConfig);
+}
+
+// 更新图表类型
+function updateChartType(canvasId, newType) {
+    if (chartInstances[canvasId]) {
+        chartInstances[canvasId].config.type = newType;
+        chartInstances[canvasId].config.options.plugins.legend.display = newType === 'doughnut';
+        chartInstances[canvasId].config.options.scales = newType === 'bar' ? {
+            x: {
+                title: { display: true, text: '电影类型' }
+            },
+            y: {
+                beginAtZero: true,
+                title: { display: true, text: '电影数量' }
+            }
+        } : {};
+        chartInstances[canvasId].update();
+    }
+}
+
+// 生成颜色数组
+function generateColors(count, alpha = 0.7) {
+    const colors = [
+        `rgba(52, 152, 219, ${alpha})`,   // 蓝色
+        `rgba(231, 76, 60, ${alpha})`,    // 红色
+        `rgba(46, 204, 113, ${alpha})`,   // 绿色
+        `rgba(241, 196, 15, ${alpha})`,   // 黄色
+        `rgba(155, 89, 182, ${alpha})`,   // 紫色
+        `rgba(230, 126, 34, ${alpha})`,   // 橙色
+        `rgba(52, 73, 94, ${alpha})`,     // 深灰色
+        `rgba(22, 160, 133, ${alpha})`,   // 青绿色
+        `rgba(192, 57, 43, ${alpha})`,    // 深红色
+        `rgba(142, 68, 173, ${alpha})`    // 深紫色
+    ];
+    
+    return Array(count).fill().map((_, i) => colors[i % colors.length]);
+}
+
+// 显示图表详细信息
+function showChartDetails(label, value, data) {
+    const total = data.values.reduce((a, b) => a + b, 0);
+    const percentage = ((value / total) * 100).toFixed(1);
+    
+    // 创建模态框显示详细信息
+    const modalHtml = `
+        <div class="modal fade" id="chartDetailModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">详细信息</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>类型名称</h6>
+                                <p class="text-primary fs-5">${label}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>电影数量</h6>
+                                <p class="text-success fs-5">${value}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>占比</h6>
+                                <p class="text-warning fs-5">${percentage}%</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>总计</h6>
+                                <p class="text-info fs-5">${total}</p>
+                            </div>
+                        </div>
+                        <div class="progress mt-3">
+                            <div class="progress-bar bg-primary" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" onclick="searchMoviesByGenre('${label}')">查看相关电影</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // 移除现有模态框
+    const existingModal = document.getElementById('chartDetailModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // 添加新模态框
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // 显示模态框
+    const modal = new bootstrap.Modal(document.getElementById('chartDetailModal'));
+    modal.show();
+}
+
+// 根据类型搜索电影
+function searchMoviesByGenre(genre) {
+    window.location.href = `/search?q=${encodeURIComponent(genre)}&type=genre`;
+}
+
+// 实时时间显示
+function updateTime() {
+    const now = new Date();
+    const timeString = now.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    document.getElementById('currentTime').textContent = timeString;
+}
+
+// 页面加载时更新时间，然后每秒更新
+updateTime();
+setInterval(updateTime, 1000);
+
+// 图表交互效果
+document.querySelectorAll('.chart-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-5px)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+    });
+});
+
+// 数字动画效果
+function animateNumbers() {
+    document.querySelectorAll('.metric-number').forEach(element => {
+        const finalValue = parseInt(element.textContent);
+        let currentValue = 0;
+        const increment = finalValue / 50;
+        
+        const timer = setInterval(() => {
+            currentValue += increment;
+            if (currentValue >= finalValue) {
+                element.textContent = finalValue;
+                clearInterval(timer);
+            } else {
+                element.textContent = Math.floor(currentValue);
+            }
+        }, 30);
+    });
+}
+
+// 页面加载完成后执行动画
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(animateNumbers, 500);
+});
+</script>
+{% endblock %} 

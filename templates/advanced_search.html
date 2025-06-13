@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级搜索 - 电影评分系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 全局重置和系统主题 */
+        * {
+            box-sizing: border-box !important;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 25%, #4a6741 50%, #2c3e50 75%, #1a252f 100%) !important;
+            background-size: 400% 400% !important;
+            animation: gradientShift 15s ease infinite !important;
+            color: #ecf0f1 !important;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'WenQuanYi Micro Hei', 'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif !important;
+            min-height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden !important;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* 系统一致的背景粒子效果 */
+        body::before {
+            content: '' !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(52, 152, 219, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(155, 89, 182, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(52, 152, 219, 0.15) 0%, transparent 50%) !important;
+            pointer-events: none !important;
+            z-index: -1 !important;
+        }
+        
+        /* 导航栏样式 */
+        .navbar {
+            background: rgba(44, 62, 80, 0.95) !important;
+            backdrop-filter: blur(10px) !important;
+            border-bottom: 1px solid rgba(52, 152, 219, 0.3) !important;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        .navbar-brand {
+            color: #3498db !important;
+            font-weight: 700 !important;
+            font-size: 24px !important;
+        }
+        
+        .navbar-nav .nav-link {
+            color: #ecf0f1 !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: #3498db !important;
+            transform: translateY(-1px) !important;
+        }
+        
+        /* 主要内容区域 */
+        .main-container {
+            padding: 40px 20px !important;
+            min-height: calc(100vh - 56px) !important;
+            animation: fadeInUp 0.8s ease-out !important;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 搜索卡片 */
+        .search-card {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border-radius: 20px !important;
+            padding: 40px !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+            position: relative !important;
+            overflow: hidden !important;
+            animation: cardFloat 6s ease-in-out infinite !important;
+            margin-bottom: 30px !important;
+        }
+        
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        .search-card::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -100% !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.1), transparent) !important;
+            animation: shimmer 4s infinite !important;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .search-title {
+            color: #ecf0f1 !important;
+            font-size: 32px !important;
+            font-weight: 700 !important;
+            text-align: center !important;
+            margin-bottom: 40px !important;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+            position: relative !important;
+            animation: titleGlow 3s ease-in-out infinite !important;
+        }
+        
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(52, 152, 219, 0.3); }
+            50% { text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 30px rgba(52, 152, 219, 0.5); }
+        }
+        
+        .search-title i {
+            color: #3498db !important;
+            animation: iconPulse 3s ease-in-out infinite !important;
+        }
+        
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); color: #3498db; }
+            50% { transform: scale(1.1); color: #5dade2; }
+        }
+        
+        /* 表单组样式 */
+        .form-group {
+            margin-bottom: 30px !important;
+            animation: slideInLeft 0.6s ease-out !important;
+            animation-fill-mode: both !important;
+        }
+        
+        .form-group:nth-child(1) { animation-delay: 0.1s !important; }
+        .form-group:nth-child(2) { animation-delay: 0.2s !important; }
+        .form-group:nth-child(3) { animation-delay: 0.3s !important; }
+        .form-group:nth-child(4) { animation-delay: 0.4s !important; }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .form-label {
+            color: #ecf0f1 !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            margin-bottom: 12px !important;
+            display: block !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+            position: relative !important;
+        }
+        
+        .form-label::before {
+            content: '' !important;
+            position: absolute !important;
+            left: -15px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: 4px !important;
+            height: 20px !important;
+            background: linear-gradient(135deg, #3498db, #5dade2) !important;
+            border-radius: 2px !important;
+            opacity: 0.8 !important;
+        }
+        
+        .form-label i {
+            color: #3498db !important;
+            margin-right: 8px !important;
+            font-size: 14px !important;
+        }
+        
+        /* 最强力的输入框样式 - 系统主题 + 美化效果 */
+        .search-input,
+        input.search-input,
+        select.search-input,
+        input.form-control,
+        select.form-select {
+            width: 100% !important;
+            height: auto !important;
+            min-height: 50px !important;
+            padding: 16px 20px !important;
+            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 12px !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            color: #2c3e50 !important;
+            font-size: 16px !important;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'WenQuanYi Micro Hei', 'Segoe UI', sans-serif !important;
+            line-height: 1.5 !important;
+            box-sizing: border-box !important;
+            
+            /* 确保可交互 */
+            pointer-events: auto !important;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            cursor: text !important;
+            
+            /* 定位和显示 */
+            position: relative !important;
+            z-index: 1000 !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            
+            /* 清除干扰 */
+            transform: none !important;
+            clip: none !important;
+            clip-path: none !important;
+            overflow: visible !important;
+            outline: none !important;
+            
+            /* 系统风格美化效果 */
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(10px) !important;
+        }
+        
+        .search-input:focus,
+        input.search-input:focus,
+        select.search-input:focus,
+        input.form-control:focus,
+        select.form-select:focus {
+            border-color: #3498db !important;
+            background: rgba(255, 255, 255, 1) !important;
+            color: #2c3e50 !important;
+            box-shadow: 
+                0 0 0 0.25rem rgba(52, 152, 219, 0.25),
+                0 8px 25px rgba(52, 152, 219, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+            outline: none !important;
+            z-index: 1001 !important;
+            transform: translateY(-2px) scale(1.02) !important;
+        }
+        
+        .search-input:hover:not(:focus),
+        input.search-input:hover:not(:focus),
+        select.search-input:hover:not(:focus),
+        input.form-control:hover:not(:focus),
+        select.form-select:hover:not(:focus) {
+            border-color: rgba(52, 152, 219, 0.5) !important;
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+            transform: translateY(-1px) !important;
+        }
+        
+        .search-input::placeholder,
+        input.search-input::placeholder,
+        input.form-control::placeholder {
+            color: #7f8c8d !important;
+            opacity: 0.7 !important;
+            font-style: italic !important;
+        }
+        
+        .form-text {
+            color: #bdc3c7 !important;
+            font-size: 13px !important;
+            margin-top: 8px !important;
+            font-style: italic !important;
+            opacity: 0.9 !important;
+        }
+        
+        /* 按钮样式 */
+        .btn-container {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin-top: 40px !important;
+            animation: slideInUp 0.6s ease-out 0.5s both !important;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .btn {
+            padding: 14px 28px !important;
+            border-radius: 12px !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            text-decoration: none !important;
+            border: none !important;
+            cursor: pointer !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative !important;
+            overflow: hidden !important;
+            text-transform: none !important;
+            letter-spacing: 0.5px !important;
+        }
+        
+        .btn::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -100% !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+            transition: left 0.6s !important;
+        }
+        
+        .btn:hover::before {
+            left: 100% !important;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #5dade2) !important;
+            color: #ffffff !important;
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3) !important;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2980b9, #3498db) !important;
+            color: #ffffff !important;
+            transform: translateY(-3px) scale(1.05) !important;
+            box-shadow: 0 12px 35px rgba(52, 152, 219, 0.4) !important;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #bdc3c7) !important;
+            color: #2c3e50 !important;
+            box-shadow: 0 8px 25px rgba(149, 165, 166, 0.3) !important;
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #7f8c8d, #95a5a6) !important;
+            color: #2c3e50 !important;
+            transform: translateY(-3px) scale(1.05) !important;
+            box-shadow: 0 12px 35px rgba(149, 165, 166, 0.4) !important;
+        }
+        
+        .btn-outline-secondary {
+            background: rgba(149, 165, 166, 0.1) !important;
+            color: #bdc3c7 !important;
+            border: 2px solid rgba(149, 165, 166, 0.3) !important;
+        }
+        
+        .btn-outline-secondary:hover {
+            background: rgba(149, 165, 166, 0.2) !important;
+            color: #ecf0f1 !important;
+            border-color: #95a5a6 !important;
+        }
+        
+        /* 搜索技巧和热门搜索卡片 */
+        .tips-card {
+            background: rgba(255, 255, 255, 0.08) !important;
+            backdrop-filter: blur(15px) !important;
+            border-radius: 15px !important;
+            padding: 25px !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+            margin-bottom: 20px !important;
+            animation: slideInRight 0.6s ease-out !important;
+            animation-fill-mode: both !important;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .tips-card h6 {
+            color: #3498db !important;
+            font-size: 18px !important;
+            font-weight: 600 !important;
+            margin-bottom: 15px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+        
+        .tips-card h6 i {
+            margin-right: 10px !important;
+            font-size: 16px !important;
+        }
+        
+        .tips-card ul {
+            color: #bdc3c7 !important;
+            margin-bottom: 0 !important;
+        }
+        
+        .tips-card ul li {
+            margin-bottom: 5px !important;
+        }
+        
+        /* 热门搜索按钮 */
+        .btn-sm {
+            padding: 8px 16px !important;
+            font-size: 14px !important;
+            border-radius: 20px !important;
+            margin: 3px !important;
+            background: rgba(52, 152, 219, 0.1) !important;
+            color: #5dade2 !important;
+            border: 1px solid rgba(52, 152, 219, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .btn-sm:hover {
+            background: rgba(52, 152, 219, 0.2) !important;
+            color: #3498db !important;
+            border-color: #3498db !important;
+            transform: translateY(-2px) !important;
+        }
+        
+        /* 返回首页按钮 */
+        .home-link {
+            position: fixed !important;
+            top: 25px !important;
+            left: 25px !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px) !important;
+            color: #ecf0f1 !important;
+            padding: 12px 24px !important;
+            border-radius: 25px !important;
+            text-decoration: none !important;
+            font-weight: 600 !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            animation: slideInDown 0.6s ease-out !important;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+            z-index: 1000 !important;
+        }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .home-link:hover {
+            background: rgba(255, 255, 255, 0.15) !important;
+            color: #3498db !important;
+            text-decoration: none !important;
+            transform: translateY(-2px) scale(1.05) !important;
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.2) !important;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px 10px !important;
+            }
+            
+            .search-card {
+                padding: 25px !important;
+                border-radius: 15px !important;
+            }
+            
+            .search-title {
+                font-size: 26px !important;
+                margin-bottom: 30px !important;
+            }
+            
+            .btn-container {
+                flex-direction: column !important;
+                gap: 20px !important;
+            }
+            
+            .btn {
+                width: 100% !important;
+                padding: 16px 20px !important;
+            }
+            
+            .home-link {
+                top: 15px !important;
+                left: 15px !important;
+                padding: 10px 18px !important;
+                font-size: 14px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .search-card {
+                margin: 10px !important;
+                padding: 20px !important;
+            }
+            
+            .search-title {
+                font-size: 22px !important;
+            }
+            
+            .search-input,
+            input.search-input,
+            select.search-input {
+                padding: 14px 16px !important;
+                font-size: 15px !important;
+                min-height: 45px !important;
+            }
+        }
+        
+        /* 系统风格的装饰效果 */
+        .movie-sparkle {
+            position: fixed !important;
+            width: 6px !important;
+            height: 6px !important;
+            background: #3498db !important;
+            border-radius: 50% !important;
+            animation: movieSparkle 3s linear infinite !important;
+            opacity: 0.7 !important;
+            pointer-events: none !important;
+        }
+        
+        @keyframes movieSparkle {
+            0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1) rotate(180deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 返回首页按钮 -->
+    <a href="/" class="home-link">
+        <i class="fas fa-home me-2"></i>返回首页
+    </a>
+    
+    <!-- 系统风格的装饰效果 -->
+    <div class="movie-sparkle" style="top: 15%; left: 25%; animation-delay: 0s;"></div>
+    <div class="movie-sparkle" style="top: 25%; left: 75%; animation-delay: 1s;"></div>
+    <div class="movie-sparkle" style="top: 65%; left: 15%; animation-delay: 2s;"></div>
+    <div class="movie-sparkle" style="top: 75%; left: 85%; animation-delay: 1.5s;"></div>
+    <div class="movie-sparkle" style="top: 40%; left: 60%; animation-delay: 0.5s;"></div>
+    
+    <div class="main-container">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-xl-10 col-lg-11">
+                    <!-- 主搜索表单 -->
+                    <div class="search-card">
+                        <h1 class="search-title">
+                            <i class="fas fa-search-plus me-3"></i>
+                            高级电影搜索
+                        </h1>
+                        
+                        <form action="/advanced_search_results" method="get" autocomplete="on">
+                            <div class="row">
+                                <!-- 关键词搜索 -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="keyword" class="form-label">
+                                            <i class="fas fa-keyboard"></i>关键词搜索
+                                        </label>
+                                        <input type="text" 
+                                               class="search-input form-control" 
+                                               id="keyword" 
+                                               name="keyword" 
+                                               placeholder="输入电影名称、导演、演员..."
+                                               autocomplete="search"
+                                               tabindex="1">
+                                        <div class="form-text">支持电影标题的模糊匹配，不区分大小写</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 电影类型 -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="genre" class="form-label">
+                                            <i class="fas fa-tags"></i>电影类型
+                                        </label>
+                                        <select class="search-input form-select" 
+                                                id="genre" 
+                                                name="genre"
+                                                tabindex="2">
+                                            <option value="">所有类型</option>
+                                            <option value="Action">动作片</option>
+                                            <option value="Adventure">冒险片</option>
+                                            <option value="Animation">动画片</option>
+                                            <option value="Comedy">喜剧片</option>
+                                            <option value="Crime">犯罪片</option>
+                                            <option value="Documentary">纪录片</option>
+                                            <option value="Drama">剧情片</option>
+                                            <option value="Family">家庭片</option>
+                                            <option value="Fantasy">奇幻片</option>
+                                            <option value="Horror">恐怖片</option>
+                                            <option value="Musical">音乐片</option>
+                                            <option value="Mystery">悬疑片</option>
+                                            <option value="Romance">浪漫片</option>
+                                            <option value="Sci-Fi">科幻片</option>
+                                            <option value="Thriller">惊悚片</option>
+                                            <option value="War">战争片</option>
+                                            <option value="Western">西部片</option>
+                                        </select>
+                                        <div class="form-text">按电影类型筛选结果</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <!-- 上映年份范围 -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <i class="fas fa-calendar-alt"></i>上映年份范围
+                                        </label>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <input type="number" 
+                                                       class="search-input form-control" 
+                                                       name="min_year" 
+                                                       placeholder="最早年份"
+                                                       min="1900" 
+                                                       max="2030"
+                                                       tabindex="3">
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" 
+                                                       class="search-input form-control" 
+                                                       name="max_year" 
+                                                       placeholder="最晚年份"
+                                                       min="1900" 
+                                                       max="2030"
+                                                       tabindex="4">
+                                            </div>
+                                        </div>
+                                        <div class="form-text">按上映年份筛选，留空表示不限制</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 评分范围 -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <i class="fas fa-star"></i>用户评分范围
+                                        </label>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <input type="number" 
+                                                       class="search-input form-control" 
+                                                       name="min_rating" 
+                                                       placeholder="最低评分"
+                                                       min="0" 
+                                                       max="5" 
+                                                       step="0.1"
+                                                       tabindex="5">
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" 
+                                                       class="search-input form-control" 
+                                                       name="max_rating" 
+                                                       placeholder="最高评分"
+                                                       min="0" 
+                                                       max="5" 
+                                                       step="0.1"
+                                                       tabindex="6">
+                                            </div>
+                                        </div>
+                                        <div class="form-text">按用户平均评分筛选 (0.0 - 5.0)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 按钮组 -->
+                            <div class="btn-container">
+                                <a href="/search" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>基础搜索
+                                </a>
+                                <div>
+                                    <button type="reset" class="btn btn-outline-secondary me-3" tabindex="8">
+                                        <i class="fas fa-undo me-2"></i>重置表单
+                                    </button>
+                                    <button type="submit" class="btn btn-primary" tabindex="7">
+                                        <i class="fas fa-search me-2"></i>开始搜索
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- 搜索技巧 -->
+                        <div class="col-md-6">
+                            <div class="tips-card">
+                                <h6>
+                                    <i class="fas fa-lightbulb text-warning"></i>
+                                    搜索技巧
+                                </h6>
+                                <ul>
+                                    <li>关键词支持部分匹配，如输入"复仇"可找到"复仇者联盟"</li>
+                                    <li>可以组合多个条件进行精确筛选</li>
+                                    <li>留空的条件将被忽略，不影响搜索结果</li>
+                                    <li>评分基于所有用户的平均评分计算</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- 热门搜索 -->
+                        <div class="col-md-6">
+                            <div class="tips-card">
+                                <h6>
+                                    <i class="fas fa-fire text-danger"></i>
+                                    热门搜索
+                                </h6>
+                                <div class="d-flex flex-wrap">
+                                    <a href="?genre=Action" class="btn btn-sm">动作片</a>
+                                    <a href="?genre=Comedy" class="btn btn-sm">喜剧片</a>
+                                    <a href="?genre=Drama" class="btn btn-sm">剧情片</a>
+                                    <a href="?genre=Sci-Fi" class="btn btn-sm">科幻片</a>
+                                    <a href="?genre=Horror" class="btn btn-sm">恐怖片</a>
+                                    <a href="?min_rating=4.0" class="btn btn-sm">高分电影</a>
+                                    <a href="?min_year=2020" class="btn btn-sm">最新电影</a>
+                                    <a href="?min_year=1990&max_year=2000" class="btn btn-sm">90年代</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 高级搜索页面终极修复脚本
+        (function() {
+            'use strict';
+            
+            function forceInputFix() {
+                console.log('=== 高级搜索页面修复脚本启动 ===');
+                
+                // 查找所有输入元素
+                const inputs = document.querySelectorAll('.search-input, input, select, textarea');
+                console.log('找到输入元素:', inputs.length);
+                
+                inputs.forEach((input, index) => {
+                    console.log(`处理输入元素 ${index + 1}:`, input.id || input.name || input.tagName);
+                    
+                    // 移除禁用属性
+                    input.removeAttribute('readonly');
+                    input.removeAttribute('disabled');
+                    
+                    // 强制设置关键样式
+                    const criticalStyles = {
+                        'pointer-events': 'auto',
+                        'user-select': 'text',
+                        'cursor': input.tagName === 'SELECT' ? 'pointer' : 'text',
+                        'position': 'relative',
+                        'z-index': '1000',
+                        'display': 'block',
+                        'visibility': 'visible',
+                        'opacity': '1',
+                        'background': 'rgba(255, 255, 255, 0.95)',
+                        'color': '#2c3e50',
+                        'border': '2px solid rgba(255, 255, 255, 0.3)',
+                        'border-radius': '12px',
+                        'width': '100%',
+                        'min-height': '50px',
+                        'padding': '16px 20px',
+                        'font-size': '16px',
+                        'box-sizing': 'border-box'
+                    };
+                    
+                    Object.entries(criticalStyles).forEach(([prop, value]) => {
+                        input.style.setProperty(prop, value, 'important');
+                    });
+                    
+                    // 添加事件监听器
+                    input.addEventListener('focus', function() {
+                        console.log('高级搜索输入框获得焦点:', this.id || this.name);
+                        this.style.setProperty('border-color', '#3498db', 'important');
+                        this.style.setProperty('background', 'rgba(255, 255, 255, 1)', 'important');
+                        this.style.setProperty('transform', 'translateY(-2px) scale(1.02)', 'important');
+                        this.style.setProperty('z-index', '1001', 'important');
+                    });
+                    
+                    input.addEventListener('blur', function() {
+                        console.log('高级搜索输入框失去焦点:', this.id || this.name);
+                        this.style.setProperty('border-color', 'rgba(255, 255, 255, 0.3)', 'important');
+                        this.style.setProperty('background', 'rgba(255, 255, 255, 0.95)', 'important');
+                        this.style.setProperty('transform', 'none', 'important');
+                        this.style.setProperty('z-index', '1000', 'important');
+                    });
+                    
+                    input.addEventListener('input', function() {
+                        console.log('高级搜索输入内容变化:', this.id || this.name, '=', this.value);
+                    });
+                    
+                    input.addEventListener('change', function() {
+                        console.log('高级搜索选择变化:', this.id || this.name, '=', this.value);
+                    });
+                    
+                    input.addEventListener('click', function() {
+                        console.log('点击高级搜索输入框:', this.id || this.name);
+                        this.focus();
+                    });
+                    
+                    // 测试焦点
+                    setTimeout(() => {
+                        try {
+                            input.focus();
+                            console.log(`高级搜索输入框 ${input.id || input.name} 焦点测试成功`);
+                            setTimeout(() => input.blur(), 100);
+                        } catch (e) {
+                            console.error(`高级搜索输入框 ${input.id || input.name} 焦点测试失败:`, e);
+                        }
+                    }, 100 * (index + 1));
+                });
+                
+                console.log('=== 修复脚本完成 ===');
+            }
+            
+            // 多重执行保证
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', forceInputFix);
+            } else {
+                forceInputFix();
+            }
+            
+            setTimeout(forceInputFix, 500);
+            setTimeout(forceInputFix, 1000);
+            setTimeout(forceInputFix, 2000);
+            
+            // 终极输入框修复 - 每5秒执行一次
+            setInterval(function() {
+                const inputs = document.querySelectorAll('.search-input, input, select, textarea');
+                inputs.forEach(input => {
+                    input.removeAttribute('readonly');
+                    input.removeAttribute('disabled');
+                    input.style.setProperty('pointer-events', 'auto', 'important');
+                    input.style.setProperty('user-select', 'text', 'important');
+                    input.style.setProperty('background', 'rgba(255, 255, 255, 0.95)', 'important');
+                    input.style.setProperty('color', '#2c3e50', 'important');
+                });
+            }, 5000);
+            
+            // 表单验证
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.querySelector('form');
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        console.log('高级搜索表单提交');
+                        
+                        const minYear = document.querySelector('input[name="min_year"]');
+                        const maxYear = document.querySelector('input[name="max_year"]');
+                        const minRating = document.querySelector('input[name="min_rating"]');
+                        const maxRating = document.querySelector('input[name="max_rating"]');
+                        
+                        // 验证年份范围
+                        if (minYear && maxYear && minYear.value && maxYear.value) {
+                            if (parseInt(minYear.value) > parseInt(maxYear.value)) {
+                                alert('⚠️ 最早年份不能大于最晚年份');
+                                e.preventDefault();
+                                minYear.focus();
+                                return false;
+                            }
+                        }
+                        
+                        // 验证评分范围
+                        if (minRating && maxRating && minRating.value && maxRating.value) {
+                            if (parseFloat(minRating.value) > parseFloat(maxRating.value)) {
+                                alert('⚠️ 最低评分不能大于最高评分');
+                                e.preventDefault();
+                                minRating.focus();
+                                return false;
+                            }
+                        }
+                        
+                        // 成功提交的视觉反馈
+                        const submitBtn = document.querySelector('.btn-primary');
+                        if (submitBtn) {
+                            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>搜索中...';
+                            submitBtn.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+                        }
+                        
+                        console.log('✅ 高级搜索表单验证通过');
+                    });
+                    
+                    // 重置按钮功能
+                    const resetBtn = document.querySelector('button[type="reset"]');
+                    if (resetBtn) {
+                        resetBtn.addEventListener('click', function() {
+                            console.log('重置高级搜索表单');
+                            setTimeout(() => {
+                                forceInputFix(); // 重置后重新修复输入框
+                            }, 100);
+                        });
+                    }
+                }
+                
+                // 添加系统风格的动态效果
+                function createSystemSparkle() {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'movie-sparkle';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.animationDelay = Math.random() * 3 + 's';
+                    document.body.appendChild(sparkle);
+                    
+                    setTimeout(() => {
+                        if (sparkle.parentNode) {
+                            sparkle.parentNode.removeChild(sparkle);
+                        }
+                    }, 3000);
+                }
+                
+                // 每3秒创建一个新的装饰效果
+                setInterval(createSystemSparkle, 3000);
+            });
+            
+            // 页面可见性监听 - 确保返回页面时功能正常
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    console.log('🔄 高级搜索页面重新可见，重新初始化功能');
+                    setTimeout(forceInputFix, 100);
+                }
+            });
+            
+        })();
+    </script>
+</body>
+</html> 

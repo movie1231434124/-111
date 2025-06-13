@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}电影评分系统{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 备用FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- 增强动画和交互效果 -->
+    <style>
+    /* 页面容器动画 */
+    .main-content { 
+        animation: fadeInUp 0.6s ease-out; 
+    }
+    
+    /* 卡片渐现动画 */
+    .card-reveal { 
+        animation: cardReveal 0.5s ease-out forwards; 
+        opacity: 0;
+    }
+    
+    @keyframes cardReveal {
+        0% { opacity: 0; transform: translateY(30px) scale(0.95); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    .card-reveal:nth-child(1) { animation-delay: 0.1s; }
+    .card-reveal:nth-child(2) { animation-delay: 0.2s; }
+    .card-reveal:nth-child(3) { animation-delay: 0.3s; }
+    .card-reveal:nth-child(4) { animation-delay: 0.4s; }
+    .card-reveal:nth-child(5) { animation-delay: 0.5s; }
+    .card-reveal:nth-child(6) { animation-delay: 0.6s; }
+    
+    /* 按钮光线扫过效果 */
+    .btn {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .btn:hover::before {
+        left: 100%;
+    }
+    
+    /* 导航栏微光效果 */
+    .navbar::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.02), transparent);
+        animation: navShimmer 4s ease-in-out infinite;
+        pointer-events: none;
+    }
+    
+    @keyframes navShimmer {
+        0%, 100% { transform: translateX(-100%); }
+        50% { transform: translateX(100%); }
+    }
+    
+    /* 卡片悬停光晕效果 */
+    .hover-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at center, rgba(52,152,219,0.1) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        border-radius: inherit;
+        z-index: -1;
+    }
+    
+    .hover-card:hover::after {
+        opacity: 1;
+    }
+    
+    /* 渐变文字效果 */
+    .gradient-text {
+        background: linear-gradient(-45deg, var(--primary-color), var(--success-color), var(--warning-color), var(--danger-color));
+        background-size: 400% 400%;
+        animation: gradientMove 3s ease infinite;
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    @keyframes gradientMove {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    /* 图标脉冲效果 */
+    .icon-pulse {
+        animation: iconPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes iconPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    /* 数字跳动效果 */
+    .counter-animation {
+        animation: counterBounce 0.6s ease-out;
+    }
+    
+    @keyframes counterBounce {
+        0% { transform: scale(0.3); opacity: 0; }
+        50% { transform: scale(1.05); }
+        70% { transform: scale(0.95); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    /* 加载骨架屏 */
+    .skeleton {
+        background: linear-gradient(90deg, var(--bg-transparent) 25%, var(--bg-card) 50%, var(--bg-transparent) 75%);
+        background-size: 200% 100%;
+        animation: skeletonLoading 1.5s infinite;
+        border-radius: var(--radius-md);
+    }
+    
+    @keyframes skeletonLoading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+    
+    /* 页面转场效果 */
+    .page-slide-in {
+        animation: pageSlideIn 0.5s ease-out;
+    }
+    
+    @keyframes pageSlideIn {
+        0% { transform: translateX(30px); opacity: 0; }
+        100% { transform: translateX(0); opacity: 1; }
+    }
+    
+    /* 特殊视觉效果 */
+    .glow-effect {
+        box-shadow: 0 0 20px rgba(52, 152, 219, 0.3);
+        animation: glowPulse 2s ease-in-out infinite alternate;
+    }
+    
+    @keyframes glowPulse {
+        from { box-shadow: 0 0 20px rgba(52, 152, 219, 0.3); }
+        to { box-shadow: 0 0 30px rgba(52, 152, 219, 0.6); }
+    }
+    
+    /* 响应式动画优化 */
+    @media (max-width: 768px) {
+        .card-reveal { animation-duration: 0.3s; }
+        .hover-card:hover { transform: translateY(-3px) scale(1.01); }
+        .icon-pulse { animation-duration: 3s; }
+    }
+    
+    /* 减少动画偏好设置 */
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark modern-navbar">
+        <div class="container-fluid px-2">
+            <!-- 品牌标识 -->
+            <a class="navbar-brand modern-brand" href="{{ url_for('index') }}">
+                <div class="brand-container">
+                    <div class="brand-icon">
+                        <i class="fas fa-film"></i>
+                    </div>
+                    <div class="brand-text">
+                        <span class="brand-title">电影评分系统</span>
+                        <span class="brand-subtitle">Movie Rating</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 移动端切换按钮 -->
+            <button class="navbar-toggler modern-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="toggler-line"></span>
+                <span class="toggler-line"></span>
+                <span class="toggler-line"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- 主要导航菜单 -->
+                <ul class="navbar-nav me-auto nav-main">
+                    <li class="nav-item">
+                        <a class="nav-link modern-nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home nav-icon"></i>
+                            <span class="nav-text">首页</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link modern-nav-link" href="{{ url_for('rankings') }}">
+                            <i class="fas fa-trophy nav-icon"></i>
+                            <span class="nav-text">排行榜</span>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown modern-dropdown">
+                        <a class="nav-link dropdown-toggle modern-nav-link" href="#" id="searchDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-search nav-icon"></i>
+                            <span class="nav-text">搜索发现</span>
+                        </a>
+                        <ul class="dropdown-menu modern-dropdown-menu">
+                            <li><a class="dropdown-item modern-dropdown-item" href="{{ url_for('search') }}">
+                                <i class="fas fa-search-plus"></i>基础搜索
+                            </a></li>
+                            <li><a class="dropdown-item modern-dropdown-item" href="{{ url_for('advanced_search') }}">
+                                <i class="fas fa-filter"></i>高级搜索
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown modern-dropdown">
+                        <a class="nav-link dropdown-toggle modern-nav-link" href="#" id="analysisDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-chart-line nav-icon"></i>
+                            <span class="nav-text">数据洞察</span>
+                        </a>
+                        <ul class="dropdown-menu modern-dropdown-menu">
+                            <li><a class="dropdown-item modern-dropdown-item" href="{{ url_for('dashboard') }}">
+                                <i class="fas fa-tachometer-alt"></i>数据仪表板
+                            </a></li>
+                            <li><a class="dropdown-item modern-dropdown-item" href="{{ url_for('analysis') }}">
+                                <i class="fas fa-chart-pie"></i>电影分析
+                            </a></li>
+                            <li><a class="dropdown-item modern-dropdown-item" href="{{ url_for('user_analysis') }}">
+                                <i class="fas fa-users"></i>用户分析
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown modern-dropdown">
+                        <a class="nav-link dropdown-toggle modern-nav-link" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-comments nav-icon"></i>
+                            <span class="nav-text">社区</span>
+                        </a>
+                        <ul class="dropdown-menu modern-dropdown-menu">
+                            <li><a class="dropdown-item modern-dropdown-item" href="{{ url_for('community') }}">
+                                <i class="fas fa-comment-dots"></i>讨论区
+                            </a></li>
+                            <li><a class="dropdown-item modern-dropdown-item" href="{{ url_for('user_list') }}">
+                                <i class="fas fa-user-friends"></i>用户列表
+                            </a></li>
+                            {% if 'username' in session %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item modern-dropdown-item" href="{{ url_for('new_discussion') }}">
+                                <i class="fas fa-plus-circle"></i>发布讨论
+                            </a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    {% if 'username' in session %}
+                    <li class="nav-item">
+                        <a class="nav-link modern-nav-link" href="{{ url_for('recommendations') }}">
+                            <i class="fas fa-magic nav-icon"></i>
+                            <span class="nav-text">推荐</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if 'username' in session and session.get('user_role') == 'admin' %}
+                    <li class="nav-item dropdown modern-dropdown">
+                        <a class="nav-link dropdown-toggle modern-nav-link admin-link" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-shield-alt nav-icon"></i>
+                            <span class="nav-text">管理</span>
+                        </a>
+                        <ul class="dropdown-menu modern-dropdown-menu">
+                            <li><a class="dropdown-item modern-dropdown-item" href="{{ url_for('admin_panel') }}">
+                                <i class="fas fa-cogs"></i>管理面板
+                            </a></li>
+                            <li><a class="dropdown-item modern-dropdown-item" href="{{ url_for('admin_users') }}">
+                                <i class="fas fa-users-cog"></i>用户管理
+                            </a></li>
+                            <li><a class="dropdown-item modern-dropdown-item" href="{{ url_for('admin_data') }}">
+                                <i class="fas fa-database"></i>数据管理
+                            </a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <!-- 搜索框 -->
+                <div class="navbar-search">
+                    <form class="search-form" action="{{ url_for('search') }}" method="get">
+                        <div class="search-container">
+                            <input class="search-input" type="search" name="q" placeholder="搜索您喜欢的电影..." required>
+                            <button class="search-btn" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 用户菜单 -->
+                <ul class="navbar-nav nav-user">
+                    {% if 'username' in session %}
+                    <li class="nav-item dropdown user-dropdown">
+                        <a class="nav-link dropdown-toggle user-profile-link" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <div class="user-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <span class="user-name">{{ session['username'] }}</span>
+                            {% if session.get('user_role') == 'admin' %}
+                            <span class="user-badge admin-badge">Admin</span>
+                            {% endif %}
+                        </a>
+                        <ul class="dropdown-menu modern-dropdown-menu user-dropdown-menu">
+                            <li class="dropdown-header">
+                                <i class="fas fa-user-circle"></i>
+                                个人中心
+                            </li>
+                            <li><a class="dropdown-item modern-dropdown-item" href="{{ url_for('user_profile', username=session['username']) }}">
+                                <i class="fas fa-id-card"></i>我的资料
+                            </a></li>
+                            <li><a class="dropdown-item modern-dropdown-item" href="{{ url_for('edit_profile') }}">
+                                <i class="fas fa-edit"></i>编辑资料
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item modern-dropdown-item logout-link" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt"></i>退出登录
+                            </a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link auth-link login-link" href="{{ url_for('login') }}">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>登录</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link auth-link register-link" href="{{ url_for('register') }}">
+                            <i class="fas fa-user-plus"></i>
+                            <span>注册</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content mt-2">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="container">
+            <div class="alert alert-info">
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p>电影评分系统 &copy; 2025</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> 

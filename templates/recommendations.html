@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}个性化推荐 - 电影评分系统{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">为您推荐的电影</h1>
+
+{% if movies %}
+<div class="row">
+    {% for movie in movies %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ movie.title }}</h5>
+                <p class="card-text">类型: {{ movie.genres }}</p>
+                <a href="{{ url_for('movie_detail', movie_id=movie.movieId) }}" class="btn btn-primary">查看详情</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">
+    目前没有推荐电影。请先对一些电影进行评分，以便我们为您提供更好的推荐。
+</div>
+{% endif %}
+{% endblock %} 

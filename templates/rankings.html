@@ -1,0 +1,393 @@
+{% extends 'base.html' %}
+
+{% block title %}电影排行榜 - 电影评分系统{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- 页面标题 -->
+    <div class="ranking-header text-center mb-5">
+        <h1 class="ranking-title">
+            <i class="fas fa-trophy text-warning me-3"></i>
+            电影排行榜
+            <i class="fas fa-medal text-warning ms-3"></i>
+        </h1>
+        <p class="ranking-subtitle">发现最佳电影，享受观影时光</p>
+    </div>
+
+    <div class="row">
+        <!-- 评分最高的电影 -->
+        <div class="col-lg-6 mb-5">
+            <div class="ranking-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-star text-warning me-2"></i>
+                        评分最高
+                    </h2>
+                    <span class="section-subtitle">口碑佳作推荐</span>
+                </div>
+                
+                <div class="ranking-list">
+                    {% for movie in highest_rated_movies %}
+                    <div class="ranking-item" data-rank="{{ loop.index }}">
+                        <div class="rank-badge 
+                            {% if loop.index == 1 %}gold{% elif loop.index == 2 %}silver{% elif loop.index == 3 %}bronze{% else %}default{% endif %}">
+                            {% if loop.index <= 3 %}
+                                <i class="fas fa-crown"></i>
+                            {% endif %}
+                            <span>{{ loop.index }}</span>
+                        </div>
+                        
+                        <div class="movie-info">
+                            <h5 class="movie-title">
+                                <a href="{{ url_for('movie_detail', movie_id=movie.movieId) }}">
+                                    {{ movie.title }}
+                                </a>
+                            </h5>
+                            <div class="movie-meta">
+                                <span class="genre-tag">{{ movie.genres.split('|')[0] if movie.genres else '未分类' }}</span>
+                                <span class="rating-score">
+                                    <i class="fas fa-star text-warning"></i>
+                                    {{ "%.1f"|format(movie.avg_rating) }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="ranking-actions">
+                            <a href="{{ url_for('movie_detail', movie_id=movie.movieId) }}" 
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 最受欢迎的电影 -->
+        <div class="col-lg-6 mb-5">
+            <div class="ranking-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-fire text-danger me-2"></i>
+                        最受欢迎
+                    </h2>
+                    <span class="section-subtitle">热门观看榜单</span>
+                </div>
+                
+                <div class="ranking-list">
+                    {% for movie in most_rated_movies %}
+                    <div class="ranking-item" data-rank="{{ loop.index }}">
+                        <div class="rank-badge 
+                            {% if loop.index == 1 %}gold{% elif loop.index == 2 %}silver{% elif loop.index == 3 %}bronze{% else %}default{% endif %}">
+                            {% if loop.index <= 3 %}
+                                <i class="fas fa-fire"></i>
+                            {% endif %}
+                            <span>{{ loop.index }}</span>
+                        </div>
+                        
+                        <div class="movie-info">
+                            <h5 class="movie-title">
+                                <a href="{{ url_for('movie_detail', movie_id=movie.movieId) }}">
+                                    {{ movie.title }}
+                                </a>
+                            </h5>
+                            <div class="movie-meta">
+                                <span class="genre-tag">{{ movie.genres.split('|')[0] if movie.genres else '未分类' }}</span>
+                                <span class="popularity-score">
+                                    <i class="fas fa-users text-info"></i>
+                                    {{ movie.rating_count }} 人评分
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="ranking-actions">
+                            <a href="{{ url_for('movie_detail', movie_id=movie.movieId) }}" 
+                               class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 页面标题样式 */
+.ranking-header {
+    padding: 2rem 0;
+}
+
+.ranking-title {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    color: var(--text-primary) !important;
+    background: var(--gradient-primary);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.ranking-subtitle {
+    font-size: 1.2rem;
+    color: #bdc3c7;
+    font-weight: 300;
+}
+
+/* 排行榜区域 */
+.ranking-section {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-medium);
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.ranking-section:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-heavy);
+    border-color: var(--border-primary);
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 300;
+}
+
+/* 排行榜列表 */
+.ranking-section {
+        background: var(--bg-card);
+        border-radius: var(--radius-xl);
+        padding: var(--space-xl);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-light);
+        box-shadow: var(--shadow-medium);
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    .ranking-section:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-heavy);
+        border-color: var(--border-primary);
+    }
+
+    /* 排行榜头部 */
+    .section-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    }
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+    .section-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: 300;
+    }
+
+    /* 排行榜条目 */
+    .ranking-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .ranking-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, transparent 0%, rgba(52, 152, 219, 0.1) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .ranking-item:hover::before { opacity: 1; }
+    .ranking-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(52, 152, 219, 0.15);
+        border-color: rgba(52, 152, 219, 0.3);
+    }
+
+    /* 响应式优化 */
+    @media (max-width: 768px) {
+        .ranking-title { font-size: 2rem; }
+        .ranking-section { padding: 1rem; }
+        .ranking-item { padding: 0.8rem; }
+        .rank-badge { width: 40px; height: 40px; font-size: 0.9rem; }
+    }
+
+/* 排名徽章 */
+.rank-badge {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-right: 1rem;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.rank-badge.gold {
+    background: var(--gold-gradient);
+    color: #8b6914;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+
+.rank-badge.silver {
+    background: var(--silver-gradient);
+    color: #5a5a5a;
+    box-shadow: 0 4px 15px rgba(192, 192, 192, 0.4);
+}
+
+.rank-badge.bronze {
+    background: var(--bronze-gradient);
+    color: #5d3a16;
+    box-shadow: 0 4px 15px rgba(205, 127, 50, 0.4);
+}
+
+.rank-badge.default {
+    background: var(--gradient-secondary);
+    color: var(--text-light);
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+.rank-badge i {
+    position: absolute;
+    top: -2px;
+    font-size: 0.8rem;
+}
+
+/* 电影信息 */
+.movie-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.movie-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.movie-title a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.movie-title a:hover {
+    color: var(--primary-color);
+}
+
+.movie-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.genre-tag {
+    background: var(--gradient-info);
+    color: var(--text-light);
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.rating-score, .popularity-score {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* 操作按钮 */
+.ranking-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.ranking-actions .btn {
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.ranking-actions .btn:hover {
+    transform: scale(1.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .ranking-title {
+        font-size: 2rem;
+    }
+    
+    .ranking-section {
+        padding: 1rem;
+    }
+    
+    .ranking-item {
+        padding: 0.8rem;
+    }
+    
+    .rank-badge {
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+    
+    .movie-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+</style>
+{% endblock %} 

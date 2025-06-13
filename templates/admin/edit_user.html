@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}编辑用户 - 管理员面板{% endblock %}
+
+{% block content %}
+<div class="fade-in-up">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-center mb-4">✏️ 编辑用户</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_panel') }}">管理员面板</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_users') }}">用户管理</a></li>
+                    <li class="breadcrumb-item active">编辑用户</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">👤 编辑用户: {{ username }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label">用户名</label>
+                                <input type="text" class="form-control" id="username" value="{{ username }}" readonly>
+                                <div class="form-text">用户名不可修改</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="role" class="form-label">用户角色</label>
+                                <select class="form-select" id="role" name="role" required>
+                                    <option value="user" {% if user.role == 'user' %}selected{% endif %}>
+                                        👤 普通用户
+                                    </option>
+                                    <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>
+                                        🛡️ 管理员
+                                    </option>
+                                </select>
+                                <div class="form-text">
+                                    管理员可以访问管理功能，普通用户只能浏览和评分
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">邮箱地址</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   value="{{ user.email or '' }}" placeholder="请输入邮箱地址">
+                            <div class="form-text">可选，用于联系用户</div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">注册时间</label>
+                                <input type="text" class="form-control" 
+                                       value="{{ user.registered_at.strftime('%Y-%m-%d %H:%M:%S') if user.registered_at else '未知' }}" 
+                                       readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">当前状态</label>
+                                <div class="mt-2">
+                                    {% if user.role == 'admin' %}
+                                        <span class="badge bg-danger fs-6">
+                                            <i class="fas fa-shield-alt me-1"></i>管理员
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-primary fs-6">
+                                            <i class="fas fa-user me-1"></i>普通用户
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>返回用户列表
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>保存更改
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 用户活动统计 -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">📊 用户活动统计</h5>
+                </div>
+                <div class="card-body">
+                                         <div class="row text-center">
+                         <div class="col-md-4 mb-3">
+                             <div class="border rounded p-3">
+                                 <h4 class="text-primary">0</h4>
+                                 <p class="text-muted mb-0">评分数量</p>
+                             </div>
+                         </div>
+                         <div class="col-md-4 mb-3">
+                             <div class="border rounded p-3">
+                                 <h4 class="text-success">0</h4>
+                                 <p class="text-muted mb-0">评论数量</p>
+                             </div>
+                         </div>
+                         <div class="col-md-4 mb-3">
+                             <div class="border rounded p-3">
+                                 <h4 class="text-info">0.0</h4>
+                                 <p class="text-muted mb-0">平均评分</p>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+            </div>
+
+            <!-- 权限说明 -->
+            <div class="alert alert-info mt-4">
+                <h6 class="alert-heading">🔒 权限说明</h6>
+                <ul class="mb-0">
+                    <li><strong>普通用户</strong>：可以浏览电影、评分、评论、查看推荐</li>
+                    <li><strong>管理员</strong>：拥有所有普通用户权限，还可以管理用户、管理数据、查看分析报告</li>
+                    <li><strong>注意</strong>：修改用户角色后，用户需要重新登录才能生效</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

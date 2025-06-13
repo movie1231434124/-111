@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}数据管理 - 管理员面板{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+<div class="fade-in-up">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-center mb-4">🗄️ 数据管理</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_panel') }}">管理员面板</a></li>
+                    <li class="breadcrumb-item active">数据管理</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- 数据统计 -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stats-card">
+                <h3>{{ stats.movies_count }}</h3>
+                <p>🎬 电影数量</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stats-card">
+                <h3>{{ stats.ratings_count }}</h3>
+                <p>⭐ 系统评分</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stats-card">
+                <h3>{{ stats.user_ratings_count }}</h3>
+                <p>👥 用户评分</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stats-card">
+                <h3>{{ stats.comments_count }}</h3>
+                <p>💬 用户评论</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 数据操作 -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">🧹 数据清理</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">清理系统中的用户数据，请谨慎操作！</p>
+                    
+                    <form method="POST" action="{{ url_for('admin_cleanup_data') }}" 
+                          onsubmit="return confirm('确定要执行此操作吗？此操作不可恢复！')">
+                        <div class="d-grid gap-2">
+                            <button type="submit" name="action" value="clear_ratings" 
+                                    class="btn btn-warning">
+                                <i class="fas fa-star me-2"></i>清空用户评分
+                            </button>
+                            <button type="submit" name="action" value="clear_comments" 
+                                    class="btn btn-info">
+                                <i class="fas fa-comment me-2"></i>清空用户评论
+                            </button>
+                            <button type="submit" name="action" value="clear_all_user_data" 
+                                    class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>清空所有用户数据
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="alert alert-warning mt-3 mb-0">
+                        <small>
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            清空操作将永久删除数据，无法恢复！管理员账户会被保留。
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">📊 数据分析</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">查看系统数据的详细分析报告</p>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-chart-pie me-2"></i>数据仪表板
+                        </a>
+                        <a href="{{ url_for('analysis') }}" class="btn btn-success">
+                            <i class="fas fa-chart-line me-2"></i>电影分析
+                        </a>
+                        <a href="{{ url_for('user_analysis') }}" class="btn btn-info">
+                            <i class="fas fa-users me-2"></i>用户分析
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 最新评分活动 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">🕒 最新评分活动</h5>
+                    <span class="badge bg-primary">最近 {{ recent_ratings|length }} 条</span>
+                </div>
+                <div class="card-body">
+                    {% if recent_ratings %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>用户</th>
+                                    <th>电影</th>
+                                    <th>评分</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rating in recent_ratings %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ rating.username }}</strong>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('movie_detail', movie_id=rating.movie_id) }}" 
+                                           class="text-decoration-none">
+                                            {{ rating.movie_title }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <div class="rating-stars">
+                                            {% for i in range(1, 6) %}
+                                                {% if i <= rating.rating %}
+                                                    <i class="fas fa-star text-warning"></i>
+                                                {% else %}
+                                                    <i class="far fa-star text-muted"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <span class="ms-2 text-muted">{{ rating.rating }}/5</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('movie_detail', movie_id=rating.movie_id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> 查看
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">暂无评分数据</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 系统信息 -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h6 class="alert-heading">ℹ️ 系统信息</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="mb-0">
+                            <li><strong>总用户数</strong>: {{ stats.users_count }}</li>
+                            <li><strong>电影数据</strong>: {{ stats.movies_count }} 部电影</li>
+                            <li><strong>评分数据</strong>: {{ stats.ratings_count + stats.user_ratings_count }} 条评分</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="mb-0">
+                            <li><strong>评论数据</strong>: {{ stats.comments_count }} 条评论</li>
+                            <li><strong>数据来源</strong>: MovieLens 数据集</li>
+                            <li><strong>系统状态</strong>: 正常运行</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %} 

@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}管理员面板 - 电影评分系统{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+<div class="fade-in-up">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-center mb-4">🛠️ 管理员面板</h1>
+            <p class="text-center text-muted">系统管理和数据监控</p>
+        </div>
+    </div>
+
+    <!-- 系统统计 -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stats-card">
+                <h3>{{ total_users }}</h3>
+                <p>👥 注册用户</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stats-card">
+                <h3>{{ total_movies }}</h3>
+                <p>🎬 电影总数</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stats-card">
+                <h3>{{ total_ratings }}</h3>
+                <p>⭐ 评分总数</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stats-card">
+                <h3>{{ role_stats.admin + role_stats.user }}</h3>
+                <p>🔧 活跃用户</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户角色统计 -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">👤 用户角色分布</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 text-center">
+                            <h4 class="text-primary">{{ role_stats.admin or 0 }}</h4>
+                            <p class="text-muted">管理员</p>
+                        </div>
+                        <div class="col-6 text-center">
+                            <h4 class="text-success">{{ role_stats.user or 0 }}</h4>
+                            <p class="text-muted">普通用户</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">🚀 快速操作</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('admin_users') }}" class="btn btn-primary">
+                            <i class="fas fa-users me-2"></i>管理用户
+                        </a>
+                        <a href="{{ url_for('admin_data') }}" class="btn btn-success">
+                            <i class="fas fa-database me-2"></i>数据管理
+                        </a>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-info">
+                            <i class="fas fa-chart-bar me-2"></i>数据分析
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 最近注册用户 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">📅 最近注册用户</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_users %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>用户名</th>
+                                    <th>角色</th>
+                                    <th>注册时间</th>
+                                    <th>邮箱</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for username, user_data in recent_users %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ username }}</strong>
+                                    </td>
+                                    <td>
+                                        {% if user_data.role == 'admin' %}
+                                            <span class="badge bg-danger">管理员</span>
+                                        {% else %}
+                                            <span class="badge bg-primary">普通用户</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ user_data.registered_at.strftime('%Y-%m-%d %H:%M') if user_data.registered_at else '未知' }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ user_data.email or '未设置' }}</small>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('admin_edit_user', username=username) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i> 编辑
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">暂无用户数据</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理员提示 -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h6 class="alert-heading">💡 管理员提示</h6>
+                <ul class="mb-0">
+                    <li><strong>用户管理</strong>：可以编辑用户角色、删除用户账户</li>
+                    <li><strong>数据管理</strong>：可以查看和清理系统数据</li>
+                    <li><strong>权限控制</strong>：管理员可以访问所有功能，普通用户只能浏览和评分</li>
+                    <li><strong>默认账户</strong>：管理员账户 admin/admin123</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %} 

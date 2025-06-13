@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+
+{% block title %}搜索结果: {{ query }} - 电影评分系统{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- 搜索结果标题 -->
+    <div class="search-results-header mb-4">
+        <h2 class="search-results-title">
+            <i class="fas fa-search me-2"></i>
+            搜索结果: "{{ query }}"
+        </h2>
+        <p class="search-results-count">
+            {% if movies %}
+                找到 {{ movies|length }} 部相关电影
+            {% else %}
+                没有找到相关电影
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- 搜索表单 -->
+    <div class="search-form-container mb-5">
+        <form action="{{ url_for('search') }}" method="get" class="search-form">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="search-input" class="form-label">搜索关键词</label>
+                        <input type="text" class="form-control" id="search-input" name="q" value="{{ query }}" required placeholder="输入电影名称...">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="search-type" class="form-label">搜索类型</label>
+                        <select class="form-select" id="search-type" name="type">
+                            <option value="title" {% if search_type == 'title' %}selected{% endif %}>片名</option>
+                            <option value="genre" {% if search_type == 'genre' %}selected{% endif %}>类型</option>
+                            <option value="all" {% if search_type == 'all' %}selected{% endif %}>所有</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-2"></i>搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {% if movies %}
+    <!-- 搜索结果网格 -->
+    <div class="search-results-grid">
+        {% for movie in movies %}
+        <div class="card-reveal">
+            <div class="card h-100 movie-card hover-card">
+                <div class="card-header bg-gradient text-white text-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-star text-warning"></i>
+                        {% if movie.avg_rating %}
+                            评分: {{ "%.1f"|format(movie.avg_rating) }}
+                        {% else %}
+                            暂无评分
+                        {% endif %}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-truncate" title="{{ movie.title }}">
+                        <i class="fas fa-film text-primary me-2"></i>{{ movie.title }}
+                    </h5>
+                    <div class="movie-genres mb-3">
+                        {% set genres = movie.genres.split('|') %}
+                        {% for genre in genres[:3] %}
+                        <span class="badge bg-secondary me-1 mb-1">{{ genre }}</span>
+                        {% endfor %}
+                        {% if genres|length > 3 %}
+                        <span class="badge bg-info text-white">+{{ genres|length - 3 }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="d-grid">
+                        <a href="{{ url_for('movie_detail', movie_id=movie.movieId) }}" 
+                           class="btn btn-primary">
+                            <i class="fas fa-info-circle me-2"></i>查看详情
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- 空状态 -->
+    <div class="empty-search-state">
+        <div class="empty-icon">
+            <i class="fas fa-search fa-3x"></i>
+        </div>
+        <h4>没有找到相关电影</h4>
+        <p>尝试使用不同的关键词或搜索类型</p>
+        <div class="empty-actions">
+            <a href="{{ url_for('advanced_search') }}" class="btn btn-outline-primary">
+                <i class="fas fa-search-plus me-2"></i>高级搜索
+            </a>
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="fas fa-home me-2"></i>返回首页
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+/* 强制搜索表单输入框可用 */
+.search-form input.form-control,
+.search-form input[type="text"],
+.search-form input[type="search"],
+.search-form select.form-select {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    color: #2c3e50 !important;
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+    font-size: 16px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    width: 100% !important;
+    height: auto !important;
+    line-height: 1.5 !important;
+    font-family: inherit !important;
+    /* 确保完全可交互 */
+    pointer-events: auto !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    position: relative !important;
+    z-index: 1000 !important;
+    overflow: visible !important;
+    outline: none !important;
+    /* 清除所有可能的干扰 */
+    transform: none !important;
+    clip: none !important;
+    clip-path: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+.search-form input.form-control:focus,
+.search-form input[type="text"]:focus,
+.search-form input[type="search"]:focus,
+.search-form select.form-select:focus {
+    background: rgba(255, 255, 255, 1) !important;
+    border-color: #3498db !important;
+    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25), 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    color: #2c3e50 !important;
+    outline: none !important;
+    transform: none !important;
+    z-index: 1001 !important;
+}
+
+.search-form input.form-control::placeholder,
+.search-form input[type="text"]::placeholder,
+.search-form input[type="search"]::placeholder {
+    color: #7f8c8d !important;
+    opacity: 0.8 !important;
+    font-style: italic !important;
+}
+
+.search-form-container {
+    position: relative !important;
+    overflow: visible !important;
+}
+
+.search-form .form-group {
+    position: relative !important;
+    overflow: visible !important;
+}
+
+.search-form .form-label {
+    color: #ecf0f1 !important;
+    font-weight: 600 !important;
+    margin-bottom: 8px !important;
+    font-size: 16px !important;
+    display: block !important;
+}
+
+/* 导航栏搜索框修复 */
+.navbar-search .search-input {
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: #2c3e50 !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    pointer-events: auto !important;
+    user-select: text !important;
+    position: relative !important;
+    z-index: 1000 !important;
+    overflow: visible !important;
+    outline: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+.navbar-search .search-input:focus {
+    background: rgba(255, 255, 255, 1) !important;
+    color: #2c3e50 !important;
+    border-color: #3498db !important;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25) !important;
+    outline: none !important;
+    z-index: 1001 !important;
+}
+
+.navbar-search .search-input::placeholder {
+    color: #7f8c8d !important;
+    opacity: 0.8 !important;
+}
+
+/* 确保所有表单元素可交互 */
+.search-form,
+.search-form *,
+.search-form-container,
+.search-form-container * {
+    overflow: visible !important;
+    pointer-events: auto !important;
+}
+</style>
+
+<script>
+// 搜索页面输入框修复脚本
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== 搜索页面调试信息 ===');
+    
+    // 获取所有搜索相关的输入框
+    const searchInputs = document.querySelectorAll('.search-form input, .navbar-search input');
+    console.log('发现搜索输入框数量:', searchInputs.length);
+    
+    searchInputs.forEach((input, index) => {
+        console.log(`搜索输入框 ${index + 1}:`, {
+            id: input.id,
+            name: input.name,
+            type: input.type,
+            placeholder: input.placeholder,
+            className: input.className
+        });
+        
+        // 强制设置输入框属性
+        input.style.pointerEvents = 'auto';
+        input.style.userSelect = 'text';
+        input.style.position = 'relative';
+        input.style.zIndex = '1000';
+        input.style.overflow = 'visible';
+        input.style.background = 'rgba(255, 255, 255, 0.95)';
+        input.style.color = '#2c3e50';
+        input.style.border = '2px solid rgba(255, 255, 255, 0.3)';
+        input.style.borderRadius = '12px';
+        input.style.padding = '12px 16px';
+        input.style.fontSize = '16px';
+        input.style.width = '100%';
+        input.style.display = 'block';
+        input.style.opacity = '1';
+        input.style.visibility = 'visible';
+        input.style.transform = 'none';
+        input.style.clip = 'none';
+        input.style.clipPath = 'none';
+        
+        // 移除可能的干扰属性
+        input.removeAttribute('readonly');
+        input.removeAttribute('disabled');
+        
+        // 添加事件监听器
+        input.addEventListener('focus', function() {
+            console.log('搜索输入框获得焦点:', this.name || this.id);
+            this.style.background = 'rgba(255, 255, 255, 1)';
+            this.style.borderColor = '#3498db';
+            this.style.zIndex = '1001';
+        });
+        
+        input.addEventListener('blur', function() {
+            console.log('搜索输入框失去焦点:', this.name || this.id);
+            this.style.background = 'rgba(255, 255, 255, 0.95)';
+            this.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            this.style.zIndex = '1000';
+        });
+        
+        input.addEventListener('input', function() {
+            console.log('搜索输入内容:', this.name || this.id, '=', this.value);
+        });
+        
+        input.addEventListener('keydown', function(e) {
+            console.log('搜索框按键:', e.key, '在输入框:', this.name || this.id);
+        });
+        
+        // 测试输入框是否可以获得焦点
+        setTimeout(() => {
+            try {
+                input.focus();
+                console.log(`搜索输入框 ${input.name || input.id} 可以获得焦点`);
+                setTimeout(() => input.blur(), 100);
+            } catch (e) {
+                console.error(`搜索输入框 ${input.name || input.id} 无法获得焦点:`, e);
+            }
+        }, 100 * (index + 1));
+    });
+    
+    // 检查选择框
+    const selects = document.querySelectorAll('.search-form select');
+    selects.forEach(select => {
+        select.style.pointerEvents = 'auto';
+        select.style.position = 'relative';
+        select.style.zIndex = '1000';
+        select.style.background = 'rgba(255, 255, 255, 0.95)';
+        select.style.color = '#2c3e50';
+        select.style.border = '2px solid rgba(255, 255, 255, 0.3)';
+        
+        select.addEventListener('focus', function() {
+            this.style.background = 'rgba(255, 255, 255, 1)';
+            this.style.borderColor = '#3498db';
+            this.style.zIndex = '1001';
+        });
+        
+        select.addEventListener('blur', function() {
+            this.style.background = 'rgba(255, 255, 255, 0.95)';
+            this.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            this.style.zIndex = '1000';
+        });
+    });
+    
+    // 检查页面样式
+    setTimeout(() => {
+        searchInputs.forEach((input, index) => {
+            const computed = window.getComputedStyle(input);
+            console.log(`搜索输入框 ${index + 1} 计算样式:`, {
+                pointerEvents: computed.pointerEvents,
+                userSelect: computed.userSelect,
+                zIndex: computed.zIndex,
+                position: computed.position,
+                display: computed.display,
+                visibility: computed.visibility,
+                opacity: computed.opacity,
+                background: computed.backgroundColor,
+                color: computed.color
+            });
+        });
+    }, 2000);
+    
+    console.log('=== 搜索页面调试信息结束 ===');
+});
+
+// 页面点击事件监听
+document.addEventListener('click', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+        console.log('输入元素被点击:', e.target.tagName, e.target.className, e.target.name || e.target.id);
+    }
+});
+</script>
+{% endblock %} 

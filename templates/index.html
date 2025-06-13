@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+
+{% block title %}首页 - 电影评分系统{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="fade-in-up">
+        <!-- 欢迎横幅 -->
+        <div class="hero-section text-center py-5 mb-4">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold mb-3 gradient-text">🎬 电影评分系统</h1>
+                <p class="lead fs-5 mb-4 text-muted">发现精彩电影，分享观影体验，获取个性化推荐</p>
+
+                <!-- 功能特性展示（响应式布局） -->
+                <div class="row justify-content-center mb-4">
+                    <div class="col-md-10">
+                        <div class="d-flex justify-content-center gap-4 flex-wrap feature-group">
+                            <div class="feature-item text-center">
+                                <i class="fas fa-search fa-2x text-primary mb-2 icon-pulse"></i>
+                                <p class="small mb-0">智能搜索</p>
+                            </div>
+                            <div class="feature-item text-center">
+                                <i class="fas fa-star fa-2x text-warning mb-2 icon-pulse"></i>
+                                <p class="small mb-0">评分推荐</p>
+                            </div>
+                            <div class="feature-item text-center">
+                                <i class="fas fa-chart-bar fa-2x text-success mb-2 icon-pulse"></i>
+                                <p class="small mb-0">数据分析</p>
+                            </div>
+                            <div class="feature-item text-center">
+                                <i class="fas fa-users fa-2x text-info mb-2 icon-pulse"></i>
+                                <p class="small mb-0">社区互动</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 用户状态提示 -->
+                {% if 'username' not in session %}
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a class="btn btn-primary btn-lg px-4 py-2 hover-effect" href="{{ url_for('register') }}" role="button">
+                        <i class="fas fa-user-plus me-2"></i>立即注册
+                    </a>
+                    <a class="btn btn-outline-primary btn-lg px-4 py-2 hover-effect" href="{{ url_for('login') }}" role="button">
+                        <i class="fas fa-sign-in-alt me-2"></i>用户登录
+                    </a>
+                </div>
+                {% else %}
+                <div class="alert alert-success d-inline-block mt-3">
+                    <i class="fas fa-user-check me-2"></i>欢迎回来，<strong>{{ session['username'] }}</strong>！
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 快速导航（响应式卡片网格） -->
+        <div class="row g-4 mb-5 card-grid">
+            <div class="col-md-3 col-sm-6 card-reveal">
+                <a href="{{ url_for('rankings') }}" class="text-decoration-none">
+                    <div class="card h-100 hover-card">
+                        <div class="card-body d-flex flex-column justify-content-center">
+                            <i class="fas fa-trophy fa-3x text-warning mb-3 icon-pulse"></i>
+                            <h5 class="card-title">电影排行榜</h5>
+                            <p class="card-text text-muted">查看最受欢迎的电影</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6 card-reveal">
+                <a href="{{ url_for('dashboard') }}" class="text-decoration-none">
+                    <div class="card h-100 hover-card">
+                        <div class="card-body d-flex flex-column justify-content-center">
+                            <i class="fas fa-chart-pie fa-3x text-primary mb-3 icon-pulse"></i>
+                            <h5 class="card-title">数据仪表板</h5>
+                            <p class="card-text text-muted">查看详细数据统计</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6 card-reveal">
+                <a href="{{ url_for('analysis') }}" class="text-decoration-none">
+                    <div class="card h-100 hover-card">
+                        <div class="card-body d-flex flex-column justify-content-center">
+                            <i class="fas fa-chart-line fa-3x text-success mb-3 icon-pulse"></i>
+                            <h5 class="card-title">电影分析</h5>
+                            <p class="card-text text-muted">深度分析电影数据</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6 card-reveal">
+                {% if 'username' in session %}
+                <a href="{{ url_for('recommendations') }}" class="text-decoration-none">
+                    <div class="card h-100 hover-card">
+                        <div class="card-body d-flex flex-column justify-content-center">
+                            <i class="fas fa-magic fa-3x text-info mb-3 icon-pulse"></i>
+                            <h5 class="card-title">个性推荐</h5>
+                            <p class="card-text text-muted">为您量身定制</p>
+                        </div>
+                    </div>
+                </a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="text-decoration-none">
+                    <div class="card h-100 hover-card">
+                        <div class="card-body d-flex flex-column justify-content-center">
+                            <i class="fas fa-sign-in-alt fa-3x text-secondary mb-3 icon-pulse"></i>
+                            <h5 class="card-title">登录获取推荐</h5>
+                            <p class="card-text text-muted">个性化电影推荐</p>
+                        </div>
+                    </div>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 热门电影展示（响应式网格布局） -->
+        <div class="section-header text-center mb-4">
+            <h2 class="display-6 fw-bold gradient-text">🌟 评分最高的电影</h2>
+            <p class="text-muted">基于用户评分数据精选推荐</p>
+        </div>
+
+        <div class="movie-grid row g-4">
+            {% for movie in movies %}
+            <div class="col-lg-4 col-md-6 card-reveal">
+                <div class="card h-100 movie-card hover-card">
+                    <div class="card-header bg-gradient text-white text-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-star text-warning"></i>
+                            评分: {{ "%.1f"|format(top_ratings[movie.movieId]) }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-truncate" title="{{ movie.title }}">
+                            <i class="fas fa-film text-primary me-2"></i>{{ movie.title }}
+                        </h5>
+                        <div class="mb-3">
+                            {% set genres = movie.genres.split('|') %}
+                            {% for genre in genres[:3] %}
+                            <span class="badge bg-secondary me-1 mb-1">{{ genre }}</span>
+                            {% endfor %}
+                            {% if genres|length > 3 %}
+                            <span class="badge bg-info text-white">+{{ genres|length - 3 }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="d-grid">
+                            <a href="{{ url_for('movie_detail', movie_id=movie.movieId) }}"
+                               class="btn btn-primary hover-effect">
+                                <i class="fas fa-info-circle me-2"></i>查看详情
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- 底部行动号召 -->
+        <div class="text-center mt-5 py-4">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">🚀 开始您的电影之旅</h4>
+                    <p class="card-text">加入我们的社区，发现更多精彩电影，分享您的观影感受</p>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <a href="{{ url_for('search') }}" class="btn btn-success hover-effect">
+                            <i class="fas fa-search me-2"></i>搜索电影
+                        </a>
+                        <a href="{{ url_for('rankings') }}" class="btn btn-warning hover-effect">
+                            <i class="fas fa-list me-2"></i>浏览排行榜
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    /* 全局背景和动画 */
+    body {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 25%, #4a6741 50%, #2c3e50 75%, #1a252f 100%) !important;
+        background-size: 400% 400% !important;
+        animation: gradientShift 15s ease infinite !important;
+    }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image:
+            radial-gradient(circle at 20% 80%, rgba(52, 152, 219, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(155, 89, 182, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(52, 152, 219, 0.15) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    /* 渐变文字 */
+    .gradient-text {
+        background: linear-gradient(135deg, #3498db, #5dade2);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    /* 卡片动画 */
+    .card-reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: slideInUp 0.6s ease-out forwards;
+    }
+
+    @keyframes slideInUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 悬停卡片效果 */
+    .hover-card {
+        background: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .hover-card:hover {
+        background: rgba(255, 255, 255, 0.15) !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+        border-color: rgba(52, 152, 219, 0.3) !important;
+    }
+
+    /* 图标脉冲动画 */
+    .icon-pulse {
+        animation: iconPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes iconPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    /* 按钮效果 */
+    .btn.hover-effect {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #3498db, #5dade2) !important;
+        box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3) !important;
+    }
+
+    .btn.hover-effect::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.6s;
+    }
+
+    .btn.hover-effect:hover::before {
+        left: 100%;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+        .hero-section { padding: 2rem 1rem; }
+        .feature-group { gap: 2rem; }
+        .card-grid .col-md-3 { flex: 0 0 50% !important; }
+        .movie-grid .col-lg-4 { flex: 0 0 100% !important; }
+    }
+</style>
+{% endblock %}

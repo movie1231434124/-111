@@ -1,0 +1,369 @@
+/* ==================== 颜色规范系统 ==================== */
+:root {
+    /* 主色调（低饱和灰粉） */
+    --primary-color: #E0B0FF;    /* 主色 */
+    --primary-dark: #D0A0EE;     /* 主色加深 */
+    --primary-light: #F0D8FF;   /* 主色变浅 */
+    --primary-lighter: #FAF4FF;  /* 主色极浅 */
+
+    /* 辅助色（暖调茶褐） */
+    --secondary-color: #8B4513;  /* 辅助主色 */
+    --secondary-dark: #6F370E;   /* 辅助加深 */
+    --secondary-light: #B07D52;  /* 辅助变浅 */
+    --secondary-lighter: #DBC6B7;/* 辅助极浅 */
+
+    /* 语义色系（低饱和柔和版） */
+    --success-color: #81C784;    /* 薄荷绿 */
+    --success-dark: #66BB6A;
+    --success-light: #A5D6A7;
+    --warning-color: #FFB74D;    /* 暖杏色 */
+    --warning-dark: #FFA000;
+    --warning-light: #FFCC80;
+    --danger-color: #EF9A9A;     /* 粉桃色 */
+    --danger-dark: #E57373;
+    --danger-light: #F48FB1;
+    --info-color: #9FA8DA;       /* 浅紫色 */
+    --info-dark: #7986CB;
+    --info-light: #C5CAE9;
+
+    /* 文本色系（适配浅背景的暖灰） */
+    --text-primary: #4A3A2F;     /* 主文本 */
+    --text-secondary: #7D6E63;   /* 次文本 */
+    --text-muted: #A0958D;       /* 弱化文本 */
+    --text-dark: #2D231C;        /* 深文本 */
+    --text-light: #FFFFFF;       /* 亮文本 */
+
+    /* 背景色系（粉米渐变+半透明） */
+    --bg-primary: linear-gradient(225deg, #FFF8F0 20%, #F8F0FF 80%); /* 主背景：米白→浅粉 */
+    --bg-card: rgba(255, 254, 252, 0.8);                          /* 卡片背景：半透明白 */
+    --bg-card-hover: rgba(255, 252, 248, 0.9);                     /* 卡片悬停 */
+    --bg-transparent: rgba(255, 255, 255, 0.15);                   /* 透明背景 */
+    --bg-nav: linear-gradient(90deg, #F8F0FF 10%, #FFF8F0 90%);    /* 导航背景：浅粉→米白 */
+
+    /* 边框和阴影（更柔和） */
+    --border-light: rgba(224, 176, 255, 0.15);  /* 浅粉边框 */
+    --border-medium: rgba(224, 176, 255, 0.25); /* 中等粉边框 */
+    --border-primary: rgba(208, 160, 238, 0.3); /* 主色边框 */
+    --shadow-light: 0 2px 8px rgba(224, 176, 255, 0.1);   /* 浅粉阴影 */
+    --shadow-medium: 0 4px 15px rgba(224, 176, 255, 0.15); /* 中等粉阴影 */
+    --shadow-heavy: 0 8px 25px rgba(224, 176, 255, 0.2);   /* 深粉阴影 */
+
+    /* 渐变色系（调整角度和颜色） */
+    --gradient-primary: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+    --gradient-success: linear-gradient(45deg, var(--success-color), var(--success-light));
+    --gradient-warning: linear-gradient(45deg, var(--warning-color), var(--warning-light));
+    --gradient-danger: linear-gradient(45deg, var(--danger-color), var(--danger-light));
+    --gradient-info: linear-gradient(45deg, var(--info-color), var(--info-light));
+    --gradient-secondary: linear-gradient(45deg, var(--secondary-color), var(--secondary-light));
+
+    /* 特殊效果（低饱和金属色） */
+    --gold-gradient: linear-gradient(45deg, #FFE082, #FFD54F);
+    --silver-gradient: linear-gradient(45deg, #E0E0E0, #F5F5F5);
+    --bronze-gradient: linear-gradient(45deg, #D7CCC8, #BCAAA4);
+
+    /* 间距规范（与原代码一致，不影响布局） */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+
+    /* 圆角规范（增大圆角增强柔和感） */
+    --radius-xs: 6px;
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 18px;
+    --radius-xl: 22px;
+    --radius-round: 50%;
+}
+
+/* FontAwesome图标字体保护（与原代码一致） */
+.fa, .fas, .far, .fab, .fal, .fad, .fat, [class*="fa-"],
+i.fa, i.fas, i.far, i.fab, i.fal, i.fad, i.fat, i[class*="fa-"],
+span.fa, span.fas, span.far, span.fab, span.fal, span.fad, span.fat, span[class*="fa-"] {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "Font Awesome 6 Brands", "Font Awesome 5 Free", "Font Awesome 5 Pro" !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-transform: none !important;
+    line-height: 1 !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    speak: none !important;
+    font-weight: 900 !important;
+}
+
+/* 中文字体优化（替换为更现代的字体） */
+*:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fab):not(.fal):not(.fad):not(.fat) {
+    font-family: 'HarmonyOS Sans', 'PingFang SC', 'Noto Sans CJK SC', 'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* 全局样式（调整背景和文本颜色） */
+body {
+    background: var(--bg-primary);
+    background-size: 300% 300%;
+    animation: gradientShift 12s ease infinite; /* 动画时长和方向与原代码不同 */
+    min-height: 100vh;
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+/* 动态背景渐变动画（调整方向） */
+@keyframes gradientShift {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+}
+
+/* ==================== 布局系统 ==================== */
+
+/* 主内容区域（增大内边距） */
+.main-content {
+    min-height: calc(100vh - 200px);
+    padding: 0 var(--space-2xl); /* 原代码为0，现增大 */
+}
+
+/* 容器统一样式（调整背景和阴影） */
+.container-fluid {
+    padding: var(--space-xl) var(--space-md);
+}
+
+.container {
+    padding: 2.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: var(--space-xl);
+    background: var(--bg-card) !important; /* 新增卡片背景 */
+    border-radius: var(--radius-xl);       /* 增大圆角 */
+    border: 1px solid var(--border-light); /* 新增边框 */
+    box-shadow: var(--shadow-light);       /* 新增柔和阴影 */
+    backdrop-filter: blur(15px);           /* 新增磨砂效果 */
+}
+
+/* 导航栏和flash消息的容器特殊处理（保持透明） */
+.navbar .container,
+.main-content > .container {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    padding: 0 10px !important;
+}
+
+/* ==================== 现代化导航栏系统 ==================== */
+
+/* 导航链接样式（调整悬停效果） */
+.modern-nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 0.75rem 1.2rem;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary) !important;
+    transition: all 0.3s ease;
+}
+
+.modern-nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    background: var(--gradient-primary);
+    opacity: 0.1;
+    transition: width 0.3s ease;
+}
+
+.modern-nav-link:hover::before {
+    width: 100%;
+}
+
+.modern-nav-link:hover {
+    color: var(--primary-color) !important;
+    transform: translateX(3px); /* 原代码为translateY(-2px) */
+    box-shadow: var(--shadow-light);
+}
+
+.nav-icon {
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.modern-nav-link:hover .nav-icon {
+    transform: scale(1.1);
+    color: var(--primary-color);
+}
+
+.nav-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* 管理员链接特殊样式（调整颜色） */
+.admin-link {
+    background: rgba(239, 154, 154, 0.1) !important; /* 对应新danger-light */
+    border: 1px solid rgba(239, 154, 154, 0.2) !important;
+}
+
+.admin-link:hover {
+    background: rgba(239, 154, 154, 0.2) !important;
+    color: var(--danger-dark) !important;
+}
+
+/* 下拉菜单样式（调整背景和动画） */
+.modern-dropdown-menu {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-medium) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-medium) !important;
+    backdrop-filter: blur(20px) !important;
+    padding: 0.75rem 0 !important;
+    margin-top: 0.5rem !important;
+    min-width: 220px !important;
+    animation: dropdownSlideIn 0.3s ease !important;
+}
+
+@keyframes dropdownSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.95); /* 调整动画方向 */
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modern-dropdown-item {
+    color: var(--text-primary) !important;
+    padding: 0.75rem 1.5rem !important;
+    font-size: 0.9rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.modern-dropdown-item:hover {
+    background: var(--bg-card-hover) !important;
+    color: var(--primary-color) !important;
+    transform: translateX(5px) !important;
+}
+
+/* ==================== 按钮系统 ==================== */
+.btn {
+    border-radius: var(--radius-md);
+    padding: 0.6rem 1.2rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    border: none;
+    color: var(--text-light);
+}
+
+.btn-primary:hover {
+    background: var(--gradient-primary);
+    transform: scale(1.03); /* 原代码为translateY(-3px) */
+    box-shadow: var(--shadow-medium);
+}
+
+.btn-outline-primary {
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-lighter);
+    color: var(--primary-color);
+    transform: scale(1.03);
+}
+
+/* 其他语义按钮（调整颜色和效果） */
+.btn-success { background: var(--gradient-success); }
+.btn-warning { background: var(--gradient-warning); }
+.btn-danger { background: var(--gradient-danger); }
+.btn-info { background: var(--gradient-info); }
+
+/* ==================== 卡片系统 ==================== */
+.strategy-item,
+.user-chart-card,
+.score-statistics {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.strategy-item:hover,
+.user-chart-card:hover,
+.score-statistics:hover {
+    background: var(--bg-card-hover);
+    transform: scale(1.02); /* 原代码为translateY(-3px) */
+    box-shadow: var(--shadow-medium);
+    border-color: var(--border-primary);
+}
+
+.strategy-item::before {
+    content: '';
+    position: absolute;
+    top: auto; /* 原代码为top:0，现移到底部 */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--gradient-success);
+}
+
+/* ==================== 表单系统 ==================== */
+.form-control {
+    border-radius: var(--radius-md);
+    border: 2px solid var(--border-medium);
+    padding: 0.75rem var(--space-md);
+    font-size: 1rem;
+    background: var(--bg-card);
+    color: var(--text-dark);
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(224, 176, 255, 0.25);
+    background: var(--bg-card-hover);
+    transform: translateY(-2px);
+}
+
+/* ==================== 文本与标题 ==================== */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-dark);
+    text-shadow: 0 1px 2px rgba(224, 176, 255, 0.2);
+    font-family: 'HarmonyOS Sans', 'PingFang SC', sans-serif;
+    font-weight: 600;
+}
+
+.text-primary { color: var(--primary-color) !important; }
+.text-success { color: var(--success-color) !important; }
+.text-warning { color: var(--warning-color) !important; }
+.text-danger { color: var(--danger-color) !important; }
+.text-info { color: var(--info-color) !important; }
+
+/* ==================== 响应式优化 ==================== */
+@media (max-width: 768px) {
+    .container {
+        padding: var(--space-md);
+    }
+
+    .action-grid {
+        grid-template-columns: 1fr; /* 小屏单列 */
+    }
+}

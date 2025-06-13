@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社区讨论 - 电影评分系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 全局重置和系统主题 */
+        * {
+            box-sizing: border-box !important;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 25%, #4a6741 50%, #2c3e50 75%, #1a252f 100%) !important;
+            background-size: 400% 400% !important;
+            animation: gradientShift 15s ease infinite !important;
+            color: #ecf0f1 !important;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'WenQuanYi Micro Hei', 'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif !important;
+            min-height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden !important;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* 系统一致的背景粒子效果 */
+        body::before {
+            content: '' !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(52, 152, 219, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(155, 89, 182, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(52, 152, 219, 0.15) 0%, transparent 50%) !important;
+            pointer-events: none !important;
+            z-index: -1 !important;
+        }
+        
+        /* 导航栏样式 */
+        .navbar {
+            background: rgba(44, 62, 80, 0.95) !important;
+            backdrop-filter: blur(10px) !important;
+            border-bottom: 1px solid rgba(52, 152, 219, 0.3) !important;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        .navbar-brand {
+            color: #3498db !important;
+            font-weight: 700 !important;
+            font-size: 24px !important;
+        }
+        
+        .navbar-nav .nav-link {
+            color: #ecf0f1 !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: #3498db !important;
+            transform: translateY(-1px) !important;
+        }
+        
+        /* 主要内容区域 */
+        .main-container {
+            padding: 40px 20px !important;
+            min-height: calc(100vh - 56px) !important;
+            animation: fadeInUp 0.8s ease-out !important;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 页面标题区域 */
+        .page-header {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border-radius: 20px !important;
+            padding: 30px 40px !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+            margin-bottom: 40px !important;
+            position: relative !important;
+            overflow: hidden !important;
+            animation: cardFloat 6s ease-in-out infinite !important;
+        }
+        
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        .page-header::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -100% !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.1), transparent) !important;
+            animation: shimmer 4s infinite !important;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .page-title {
+            color: #ecf0f1 !important;
+            font-size: 32px !important;
+            font-weight: 700 !important;
+            margin: 0 !important;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+            animation: titleSpin 4s ease-in-out infinite; /* 新动画：旋转 */
+}
+@keyframes titleSpin {
+    0%, 100% { transform: rotate(-2deg); }
+    50% { transform: rotate(2deg); }
+        
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(52, 152, 219, 0.3); }
+            50% { text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 30px rgba(52, 152, 219, 0.5); }
+        }
+        
+        .page-title i {
+            color: #f39c12 !important;
+            animation: iconPulse 3s ease-in-out infinite !important;
+        }
+        
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); color: #f39c12; }
+            50% { transform: scale(1.1); color: #e67e22; }
+        }
+        
+        /* 超强力发布讨论按钮修复 */
+        .new-discussion-btn,
+        a.new-discussion-btn,
+        .btn-new-discussion {
+            /* 确保链接按钮完全可点击 */
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            position: relative !important;
+            z-index: 9999 !important;
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            overflow: visible !important;
+            
+            /* 清除干扰样式 */
+            transform: none !important;
+            clip: none !important;
+            clip-path: none !important;
+            
+            /* 美化样式 */
+            background: linear-gradient(135deg, #3498db, #5dade2) !important;
+            color: #ffffff !important;
+            border: 2px solid #3498db !important;
+            border-radius: 15px !important;
+            padding: 16px 32px !important;
+            font-size: 18px !important;
+            font-weight: 600 !important;
+            text-decoration: none !important;
+            text-align: center !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3) !important;
+            letter-spacing: 0.5px !important;
+        }
+        
+        .new-discussion-btn:hover,
+        a.new-discussion-btn:hover,
+        .btn-new-discussion:hover {
+            background: linear-gradient(135deg, #2980b9, #3498db) !important;
+            color: #ffffff !important;
+            text-decoration: none !important;
+            transform: translateY(-3px) scale(1.05) !important;
+            box-shadow: 0 12px 35px rgba(52, 152, 219, 0.4) !important;
+            border-color: #2980b9 !important;
+        }
+        
+        .new-discussion-btn:active,
+        a.new-discussion-btn:active,
+        .btn-new-discussion:active {
+            transform: translateY(-1px) scale(1.02) !important;
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3) !important;
+        }
+        
+        .new-discussion-btn:focus,
+        a.new-discussion-btn:focus,
+        .btn-new-discussion:focus {
+            outline: 3px solid rgba(52, 152, 219, 0.5) !important;
+            outline-offset: 2px !important;
+            z-index: 10000 !important;
+        }
+        
+        /* 讨论卡片样式 */
+        .discussion-card {
+            background: rgba(255, 255, 255, 0.08) !important;
+            backdrop-filter: blur(15px) !important;
+            border-radius: 18px !important;
+            padding: 25px !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2) !important;
+            margin-bottom: 25px !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative !important;
+            overflow: hidden !important;
+            animation: slideInUp 0.6s ease-out !important;
+            animation-fill-mode: both !important;
+        }
+        
+        .discussion-card:nth-child(1) { animation-delay: 0.1s !important; }
+        .discussion-card:nth-child(2) { animation-delay: 0.2s !important; }
+        .discussion-card:nth-child(3) { animation-delay: 0.3s !important; }
+        .discussion-card:nth-child(4) { animation-delay: 0.4s !important; }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .discussion-card:hover {
+            background: rgba(255, 255, 255, 0.12) !important;
+            transform: translateY(-8px) scale(1.02) !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+            border-color: rgba(52, 152, 219, 0.3) !important;
+        }
+        
+        .discussion-card::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            height: 4px !important;
+            background: linear-gradient(135deg, #3498db, #5dade2) !important;
+            border-radius: 18px 18px 0 0 !important;
+        }
+        
+        /* 讨论标题 */
+        .discussion-title {
+            color: #ecf0f1 !important;
+            font-size: 20px !important;
+            font-weight: 600 !important;
+            margin-bottom: 15px !important;
+            line-height: 1.4 !important;
+        }
+        
+        .discussion-title a {
+            color: #ecf0f1 !important;
+            text-decoration: none !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .discussion-title a:hover {
+            color: #3498db !important;
+            text-decoration: none !important;
+        }
+        
+        /* 分类标签 */
+        .category-badge {
+            background: linear-gradient(135deg, #3498db, #5dade2) !important;
+            color: #ffffff !important;
+            padding: 6px 14px !important;
+            border-radius: 20px !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            animation: badgeGlow 3s ease-in-out infinite !important;
+        }
+        
+        @keyframes badgeGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(52, 152, 219, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(52, 152, 219, 0.5); }
+        }
+        
+        /* 讨论内容 */
+        .discussion-content {
+            color: #bdc3c7 !important;
+            font-size: 15px !important;
+            line-height: 1.6 !important;
+            margin-bottom: 20px !important;
+        }
+        
+        /* 作者信息 */
+        .author-info {
+            display: flex !important;
+            align-items: center !important;
+        }
+        
+        .author-avatar {
+            width: 40px !important;
+            height: 40px !important;
+            background: linear-gradient(135deg, #3498db, #5dade2) !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin-right: 12px !important;
+            color: #ffffff !important;
+            font-size: 16px !important;
+            animation: avatarFloat 3s ease-in-out infinite !important;
+        }
+        
+        @keyframes avatarFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
+        }
+        
+        .author-name {
+            color: #ecf0f1 !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+        }
+        
+        /* 互动按钮 */
+        .interaction-buttons {
+            display: flex !important;
+            gap: 15px !important;
+            align-items: center !important;
+        }
+        
+        .like-btn,
+        .comment-btn {
+            background: rgba(231, 76, 60, 0.1) !important;
+            color: #e74c3c !important;
+            border: 2px solid rgba(231, 76, 60, 0.3) !important;
+            border-radius: 25px !important;
+            padding: 8px 16px !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            text-decoration: none !important;
+            transition: all 0.3s ease !important;
+            cursor: pointer !important;
+        }
+        
+        .comment-btn {
+            background: rgba(52, 152, 219, 0.1) !important;
+            color: #3498db !important;
+            border-color: rgba(52, 152, 219, 0.3) !important;
+        }
+        
+        .like-btn:hover {
+            background: rgba(231, 76, 60, 0.2) !important;
+            color: #c0392b !important;
+            border-color: #e74c3c !important;
+            transform: translateY(-2px) scale(1.05) !important;
+        }
+        
+        .comment-btn:hover {
+            background: rgba(52, 152, 219, 0.2) !important;
+            color: #2980b9 !important;
+            border-color: #3498db !important;
+            transform: translateY(-2px) scale(1.05) !important;
+            text-decoration: none !important;
+        }
+        
+        .like-btn.liked {
+            background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+            color: #ffffff !important;
+            border-color: #e74c3c !important;
+        }
+        
+        /* 时间戳 */
+        .timestamp {
+            color: #7f8c8d !important;
+            font-size: 13px !important;
+            font-style: italic !important;
+        }
+        
+        /* 空状态样式 */
+        .empty-state {
+            text-align: center !important;
+            padding: 80px 40px !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            backdrop-filter: blur(15px) !important;
+            border-radius: 20px !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            animation: pulse 3s ease-in-out infinite !important;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        
+        .empty-state i {
+            color: #7f8c8d !important;
+            margin-bottom: 25px !important;
+            animation: float 3s ease-in-out infinite !important;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .empty-state h4 {
+            color: #bdc3c7 !important;
+            margin-bottom: 15px !important;
+        }
+        
+        .empty-state p {
+            color: #7f8c8d !important;
+            margin-bottom: 30px !important;
+        }
+        
+        /* 返回首页按钮 */
+        .home-link {
+            position: fixed !important;
+            top: 25px !important;
+            left: 25px !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px) !important;
+            color: #ecf0f1 !important;
+            padding: 12px 24px !important;
+            border-radius: 25px !important;
+            text-decoration: none !important;
+            font-weight: 600 !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            animation: slideInDown 0.6s ease-out !important;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+            z-index: 1000 !important;
+        }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .home-link:hover {
+            background: rgba(255, 255, 255, 0.15) !important;
+            color: #3498db !important;
+            text-decoration: none !important;
+            transform: translateY(-2px) scale(1.05) !important;
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.2) !important;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px 10px !important;
+            }
+            
+            .page-header {
+                padding: 20px 25px !important;
+                border-radius: 15px !important;
+                flex-direction: column !important;
+                gap: 20px !important;
+            }
+            
+            .page-title {
+                font-size: 26px !important;
+                text-align: center !important;
+            }
+            
+            .discussion-card {
+                padding: 20px !important;
+                border-radius: 15px !important;
+            }
+            
+            .new-discussion-btn {
+                padding: 14px 24px !important;
+                font-size: 16px !important;
+                width: 100% !important;
+            }
+            
+            .home-link {
+                top: 15px !important;
+                left: 15px !important;
+                padding: 10px 18px !important;
+                font-size: 14px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-header {
+                margin: 15px !important;
+                padding: 15px 20px !important;
+            }
+            
+            .page-title {
+                font-size: 22px !important;
+            }
+            
+            .discussion-card {
+                margin: 10px !important;
+                padding: 15px !important;
+            }
+            
+            .discussion-title {
+                font-size: 18px !important;
+            }
+            
+            .interaction-buttons {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 10px !important;
+            }
+        }
+        
+        /* 系统风格的装饰效果 */
+        .movie-sparkle {
+            position: fixed !important;
+            width: 6px !important;
+            height: 6px !important;
+            background: #3498db !important;
+            border-radius: 50% !important;
+            animation: movieSparkle 3s linear infinite !important;
+            opacity: 0.7 !important;
+            pointer-events: none !important;
+        }
+        
+        @keyframes movieSparkle {
+            0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1) rotate(180deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 返回首页按钮 -->
+    <a href="/" class="home-link">
+        <i class="fas fa-home me-2"></i>返回首页
+    </a>
+    
+    <!-- 系统风格的装饰效果 -->
+    <div class="movie-sparkle" style="top: 15%; left: 25%; animation-delay: 0s;"></div>
+    <div class="movie-sparkle" style="top: 25%; left: 75%; animation-delay: 1s;"></div>
+    <div class="movie-sparkle" style="top: 65%; left: 15%; animation-delay: 2s;"></div>
+    <div class="movie-sparkle" style="top: 75%; left: 85%; animation-delay: 1.5s;"></div>
+    <div class="movie-sparkle" style="top: 40%; left: 60%; animation-delay: 0.5s;"></div>
+    
+    <div class="main-container">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-xl-10 col-lg-11">
+                    <!-- 页面标题和发布按钮 -->
+                    <div class="page-header d-flex justify-content-between align-items-center">
+                        <h1 class="page-title">
+                            <i class="fas fa-comments me-3"></i>
+                            社区讨论
+                        </h1>
+                        <a href="/community/new" 
+                           class="new-discussion-btn btn-new-discussion"
+                           id="newDiscussionBtn"
+                           onclick="console.log('发布讨论按钮点击事件触发'); return true;"
+                           style="pointer-events: auto !important; z-index: 99999 !important; position: relative !important; cursor: pointer !important;">
+                            <i class="fas fa-plus me-2"></i>发布讨论
+                        </a>
+                    </div>
+                    
+                    <!-- 讨论列表 -->
+                    {% if discussions %}
+                    <div class="row">
+                        {% for discussion_id, discussion in discussions %}
+                        <div class="col-lg-6 mb-4">
+                            <div class="discussion-card">
+                                <!-- 分类和时间 -->
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="category-badge">{{ discussion.category }}</span>
+                                    <span class="timestamp">{{ discussion.created_at.strftime('%m-%d %H:%M') }}</span>
+                                </div>
+                                
+                                <!-- 讨论标题 -->
+                                <h3 class="discussion-title">
+                                    <a href="/community/{{ discussion_id }}">
+                                        {{ discussion.title }}
+                                    </a>
+                                </h3>
+                                
+                                <!-- 讨论内容预览 -->
+                                <p class="discussion-content">
+                                    {{ discussion.content[:150] }}{% if discussion.content|length > 150 %}...{% endif %}
+                                </p>
+                                
+                                <!-- 底部信息栏 -->
+                                <div class="d-flex justify-content-between align-items-center border-top pt-3" style="border-top: 1px solid rgba(255, 255, 255, 0.1) !important;">
+                                    <!-- 作者信息 -->
+                                    <div class="author-info">
+                                        <div class="author-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <span class="author-name">{{ discussion.author_info.nickname or discussion.author }}</span>
+                                    </div>
+                                    
+                                    <!-- 互动按钮 -->
+                                    <div class="interaction-buttons">
+                                        <button class="like-btn" 
+                                                data-discussion-id="{{ discussion_id }}"
+                                                onclick="handleLike({{ discussion_id }})">
+                                            <i class="fas fa-heart"></i> 
+                                            <span class="like-count">{{ discussion.likes_count }}</span>
+                                        </button>
+                                        
+                                        <a href="/community/{{ discussion_id }}" class="comment-btn">
+                                            <i class="fas fa-comment"></i> {{ discussion.replies_count }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <!-- 空状态 -->
+                    <div class="empty-state">
+                        <i class="fas fa-comments fa-5x"></i>
+                        <h4>还没有讨论</h4>
+                        <p>成为第一个发起讨论的人吧！分享您对电影的独特见解</p>
+                        <a href="/community/new" 
+                           class="new-discussion-btn btn-new-discussion"
+                           onclick="console.log('空状态发布讨论按钮点击'); return true;">
+                            <i class="fas fa-plus me-2"></i>发布讨论
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 社区讨论页面终极修复脚本
+        (function() {
+            'use strict';
+            
+            function forceButtonFix() {
+                console.log('=== 社区讨论页面修复脚本启动 ===');
+                
+                // 超强力修复发布讨论按钮
+                const newDiscussionButtons = [
+                    document.getElementById('newDiscussionBtn'),
+                    document.querySelector('.new-discussion-btn'),
+                    document.querySelector('.btn-new-discussion'),
+                    document.querySelector('a[href*="new"]')
+                ].filter(btn => btn !== null);
+                
+                if (newDiscussionButtons.length > 0) {
+                    console.log('找到发布讨论按钮数量:', newDiscussionButtons.length, newDiscussionButtons);
+                    
+                    newDiscussionButtons.forEach((btn, index) => {
+                        console.log(`处理发布讨论按钮 ${index + 1}:`, btn);
+                        
+                        // 超强力样式修复
+                        const superStyles = {
+                            'pointer-events': 'auto',
+                            'cursor': 'pointer',
+                            'position': 'relative',
+                            'z-index': '99999',
+                            'display': 'inline-block',
+                            'visibility': 'visible',
+                            'opacity': '1',
+                            'overflow': 'visible',
+                            'transform': 'none',
+                            'clip': 'auto',
+                            'clip-path': 'none',
+                            'mask': 'none',
+                            '-webkit-mask': 'none',
+                            'background': 'linear-gradient(135deg, #3498db, #5dade2)',
+                            'color': '#ffffff',
+                            'border': '2px solid #3498db',
+                            'border-radius': '15px',
+                            'padding': '16px 32px',
+                            'font-size': '18px',
+                            'font-weight': '600',
+                            'text-decoration': 'none',
+                            'text-align': 'center'
+                        };
+                        
+                        Object.entries(superStyles).forEach(([prop, value]) => {
+                            btn.style.setProperty(prop, value, 'important');
+                        });
+                        
+                        // 移除可能的禁用属性
+                        btn.removeAttribute('disabled');
+                        btn.removeAttribute('readonly');
+                        
+                        // 确保href属性存在 - 终极修复版
+                        if (!btn.href || btn.href === '#' || btn.href.includes('#')) {
+                            const newDiscussionUrl = '/community/new';
+                            btn.href = newDiscussionUrl;
+                            btn.setAttribute('href', newDiscussionUrl);
+                            console.log('✅ 强制设置发布讨论按钮href为:', newDiscussionUrl);
+                        }
+                        
+                        // 终极修复：直接在按钮上绑定强制跳转
+                        btn.onclick = function(e) {
+                            e.preventDefault();
+                            console.log('🚀 发布讨论按钮强制跳转触发!');
+                            const targetUrl = '/community/new';
+                            console.log('跳转到:', targetUrl);
+                            window.location.href = targetUrl;
+                            return false;
+                        };
+                        
+                        // 多重点击事件监听器
+                        ['click', 'mousedown', 'touchstart'].forEach(eventType => {
+                            btn.addEventListener(eventType, function(e) {
+                                console.log(`发布讨论按钮 ${eventType} 事件触发!`, this.href);
+                                if (eventType === 'click') {
+                                    e.preventDefault();
+                                    console.log('✅ 发布讨论按钮点击成功，正在跳转');
+                                    window.location.href = '/community/new';
+                                }
+                            }, true); // 使用捕获阶段
+                        });
+                        
+                        // 悬停效果
+                        btn.addEventListener('mouseenter', function() {
+                            console.log('发布讨论按钮悬停');
+                            this.style.setProperty('background', 'linear-gradient(135deg, #2980b9, #3498db)', 'important');
+                            this.style.setProperty('transform', 'translateY(-3px) scale(1.05)', 'important');
+                        });
+                        
+                        btn.addEventListener('mouseleave', function() {
+                            this.style.setProperty('background', 'linear-gradient(135deg, #3498db, #5dade2)', 'important');
+                            this.style.setProperty('transform', 'none', 'important');
+                        });
+                        
+                        // 焦点测试
+                        setTimeout(() => {
+                            try {
+                                btn.focus();
+                                console.log(`✅ 发布讨论按钮 ${index + 1} 可以获得焦点`);
+                                
+                                // 模拟点击测试
+                                setTimeout(() => {
+                                    btn.blur();
+                                    // 测试点击区域
+                                    const rect = btn.getBoundingClientRect();
+                                    console.log(`发布讨论按钮 ${index + 1} 位置:`, {
+                                        top: rect.top,
+                                        left: rect.left,
+                                        width: rect.width,
+                                        height: rect.height,
+                                        visible: rect.width > 0 && rect.height > 0
+                                    });
+                                }, 200);
+                            } catch (e) {
+                                console.error(`❌ 发布讨论按钮 ${index + 1} 无法获得焦点:`, e);
+                            }
+                        }, 500 * (index + 1));
+                    });
+                } else {
+                    console.log('⚠️ 未找到任何发布讨论按钮');
+                }
+                
+                console.log('=== 修复脚本完成 ===');
+            }
+            
+            // 多重执行保证
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', forceButtonFix);
+            } else {
+                forceButtonFix();
+            }
+            
+            setTimeout(forceButtonFix, 500);
+            setTimeout(forceButtonFix, 1000);
+            setTimeout(forceButtonFix, 2000);
+            
+            // 点赞功能
+            window.handleLike = function(discussionId) {
+                console.log('点赞函数调用，讨论ID:', discussionId);
+                
+                const likeBtn = document.querySelector(`[data-discussion-id="${discussionId}"]`);
+                if (!likeBtn) {
+                    console.error('未找到点赞按钮');
+                    return;
+                }
+                
+                fetch(`/community/${discussionId}/like`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                })
+                .then(response => {
+                    console.log('点赞请求响应状态:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('点赞请求响应数据:', data);
+                    if (data.status === 'success') {
+                        const likeCount = likeBtn.querySelector('.like-count');
+                        if (likeCount) {
+                            likeCount.textContent = data.likes_count;
+                            console.log('更新点赞数:', data.likes_count);
+                        }
+                        
+                        if (data.action === 'liked') {
+                            likeBtn.classList.add('liked');
+                            console.log('样式变更：已点赞');
+                        } else {
+                            likeBtn.classList.remove('liked');
+                            console.log('样式变更：取消点赞');
+                        }
+                    } else {
+                        console.error('点赞请求失败:', data);
+                        alert('点赞失败，请重试');
+                    }
+                })
+                .catch(error => {
+                    console.error('点赞请求出错:', error);
+                    alert('网络错误，请检查连接');
+                });
+            };
+            
+            // 添加系统风格的动态效果
+            function createSystemSparkle() {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'movie-sparkle';
+                sparkle.style.top = Math.random() * 100 + '%';
+                sparkle.style.left = Math.random() * 100 + '%';
+                sparkle.style.animationDelay = Math.random() * 3 + 's';
+                document.body.appendChild(sparkle);
+                
+                setTimeout(() => {
+                    if (sparkle.parentNode) {
+                        sparkle.parentNode.removeChild(sparkle);
+                    }
+                }, 3000);
+            }
+            
+            // 每3秒创建一个新的装饰效果
+            setInterval(createSystemSparkle, 3000);
+            
+            // 终极按钮状态检查
+            setInterval(function() {
+                const btn = document.getElementById('newDiscussionBtn');
+                if (btn) {
+                    const rect = btn.getBoundingClientRect();
+                    console.log('⚡ 发布讨论按钮状态检查:', {
+                        可见: rect.width > 0 && rect.height > 0,
+                        href: btn.href,
+                        样式: window.getComputedStyle(btn).pointerEvents,
+                        zIndex: window.getComputedStyle(btn).zIndex
+                    });
+                }
+            }, 10000); // 每10秒检查一次
+            
+            // 页面可见性监听 - 确保返回页面时功能正常
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    console.log('🔄 社区页面重新可见，重新初始化功能');
+                    setTimeout(forceButtonFix, 100);
+                }
+            });
+            
+        })();
+    </script>
+</body>
+</html> 

@@ -1,0 +1,410 @@
+{% extends "base.html" %}
+
+{% block title %}用户分析 - 电影评分系统{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- 用户分析页面标题区域 -->
+    <div class="user-analysis-header mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="user-analysis-title">
+                    <i class="fas fa-users-cog me-3"></i>
+                    用户行为分析
+                </h1>
+                <p class="user-analysis-subtitle">深度解析用户群体特征，优化产品体验策略</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="analysis-badge">
+                    <div class="badge-content">
+                        <span class="badge-number">{{ total_users }}</span>
+                        <span class="badge-label">活跃用户</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 核心用户指标 -->
+    <div class="row mb-5">
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="user-metric-card metric-primary">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="metric-trend">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+12%</span>
+                    </div>
+                </div>
+                <div class="metric-body">
+                    <div class="metric-number">{{ total_users }}</div>
+                    <div class="metric-label">总用户数</div>
+                    <div class="metric-description">活跃评分用户</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="user-metric-card metric-success">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="metric-trend">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+5%</span>
+                    </div>
+                </div>
+                <div class="metric-body">
+                    <div class="metric-number">{{ top_users[0].total_ratings if top_users else 0 }}</div>
+                    <div class="metric-label">最高评分数</div>
+                    <div class="metric-description">单用户最大贡献</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="user-metric-card metric-warning">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="metric-trend">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+8%</span>
+                    </div>
+                </div>
+                <div class="metric-body">
+                    <div class="metric-number">{{ "%.1f"|format((top_users|sum(attribute='avg_rating')/top_users|length) if top_users else 0) }}</div>
+                    <div class="metric-label">平均评分</div>
+                    <div class="metric-description">用户评分均值</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="user-metric-card metric-info">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="metric-trend">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+15%</span>
+                    </div>
+                </div>
+                <div class="metric-body">
+                    <div class="metric-number">{{ (top_users|selectattr('total_ratings', '>=', 20)|list|length) if top_users else 0 }}</div>
+                    <div class="metric-label">活跃用户</div>
+                    <div class="metric-description">评分20+的用户</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户行为分析图表 -->
+    <div class="row mb-5">
+        <div class="col-lg-6 mb-4">
+            <div class="user-chart-card">
+                <div class="chart-header">
+                    <div class="chart-title-section">
+                        <h5 class="chart-title">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            用户活跃度分布
+                        </h5>
+                        <p class="chart-description">评分数量分布反映用户参与度</p>
+                    </div>
+                    <div class="chart-controls">
+                        <button class="btn btn-sm btn-outline-light">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <img src="data:image/png;base64,{{ plot1_url }}" alt="用户评分数量分布图" class="chart-image">
+                </div>
+                <div class="chart-insights">
+                    <div class="insight-tag">
+                        <i class="fas fa-info-circle"></i>
+                        <span>长尾分布特征明显，少数用户贡献大量评分</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="user-chart-card">
+                <div class="chart-header">
+                    <div class="chart-title-section">
+                        <h5 class="chart-title">
+                            <i class="fas fa-star me-2"></i>
+                            评分偏好分析
+                        </h5>
+                        <p class="chart-description">用户平均评分分布特征</p>
+                    </div>
+                    <div class="chart-controls">
+                        <button class="btn btn-sm btn-outline-light">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <img src="data:image/png;base64,{{ plot2_url }}" alt="用户平均评分分布图" class="chart-image">
+                </div>
+                <div class="chart-insights">
+                    <div class="insight-tag">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>大多数用户评分偏向积极，平均分集中在3.5-4.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 活跃用户排行榜 -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="leaderboard-card">
+                <div class="leaderboard-header">
+                    <h4 class="leaderboard-title">
+                        <i class="fas fa-trophy me-2"></i>
+                        活跃用户排行榜
+                    </h4>
+                    <div class="leaderboard-subtitle">基于评分数量和质量的综合排名</div>
+                </div>
+                <div class="leaderboard-body">
+                    {% if top_users %}
+                    <div class="leaderboard-list">
+                        {% for user in top_users[:10] %}
+                        <div class="leaderboard-item rank-{{ loop.index }}">
+                            <div class="rank-section">
+                                {% if loop.index == 1 %}
+                                    <div class="rank-badge gold">
+                                        <i class="fas fa-crown"></i>
+                                        <span>{{ loop.index }}</span>
+                                    </div>
+                                {% elif loop.index == 2 %}
+                                    <div class="rank-badge silver">
+                                        <i class="fas fa-medal"></i>
+                                        <span>{{ loop.index }}</span>
+                                    </div>
+                                {% elif loop.index == 3 %}
+                                    <div class="rank-badge bronze">
+                                        <i class="fas fa-award"></i>
+                                        <span>{{ loop.index }}</span>
+                                    </div>
+                                {% else %}
+                                    <div class="rank-badge default">
+                                        <span>{{ loop.index }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="user-info">
+                                <div class="user-name">{{ user.username }}</div>
+                                <div class="user-stats">
+                                    <span class="stat-item">
+                                        <i class="fas fa-star"></i>
+                                        {{ user.total_ratings }} 评分
+                                    </span>
+                                    <span class="stat-item">
+                                        <i class="fas fa-chart-line"></i>
+                                        平均 {{ user.avg_rating }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="activity-level">
+                                {% if user.total_ratings >= 50 %}
+                                    <div class="level-badge super-active">
+                                        <i class="fas fa-fire"></i>
+                                        <span>超级活跃</span>
+                                    </div>
+                                {% elif user.total_ratings >= 20 %}
+                                    <div class="level-badge very-active">
+                                        <i class="fas fa-bolt"></i>
+                                        <span>很活跃</span>
+                                    </div>
+                                {% elif user.total_ratings >= 10 %}
+                                    <div class="level-badge active">
+                                        <i class="fas fa-thumbs-up"></i>
+                                        <span>活跃</span>
+                                    </div>
+                                {% else %}
+                                    <div class="level-badge normal">
+                                        <i class="fas fa-user"></i>
+                                        <span>一般</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="rating-range">
+                                <div class="range-label">评分范围</div>
+                                <div class="range-value">{{ user.min_rating }} - {{ user.max_rating }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-users fa-3x"></i>
+                        <h5>暂无用户数据</h5>
+                        <p>等待用户开始评分电影</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户行为洞察与策略建议 -->
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="user-insights-panel">
+                <div class="panel-header">
+                    <h4 class="panel-title">
+                        <i class="fas fa-microscope me-2"></i>
+                        用户行为洞察
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="insight-category">
+                                <div class="category-header">
+                                    <i class="fas fa-chart-pie"></i>
+                                    <h6>活跃度分层</h6>
+                                </div>
+                                <div class="category-content">
+                                    <div class="insight-item">
+                                        <div class="insight-icon bg-danger">
+                                            <i class="fas fa-fire"></i>
+                                        </div>
+                                        <div class="insight-text">
+                                            <strong>超级活跃用户</strong>
+                                            <p>评分50+部电影，占比{{ "%.1f"|format((top_users|selectattr('total_ratings', '>=', 50)|list|length / total_users * 100) if top_users and total_users > 0 else 0) }}%</p>
+                                        </div>
+                                    </div>
+                                    <div class="insight-item">
+                                        <div class="insight-icon bg-warning">
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <div class="insight-text">
+                                            <strong>活跃用户</strong>
+                                            <p>评分10-49部电影，占比{{ "%.1f"|format(((top_users|selectattr('total_ratings', '>=', 10)|list|length - top_users|selectattr('total_ratings', '>=', 50)|list|length) / total_users * 100) if top_users and total_users > 0 else 0) }}%</p>
+                                        </div>
+                                    </div>
+                                    <div class="insight-item">
+                                        <div class="insight-icon bg-info">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="insight-text">
+                                            <strong>一般用户</strong>
+                                            <p>评分少于10部电影，占比{{ "%.1f"|format(((total_users - top_users|selectattr('total_ratings', '>=', 10)|list|length) / total_users * 100) if top_users and total_users > 0 else 0) }}%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="insight-category">
+                                <div class="category-header">
+                                    <i class="fas fa-heart"></i>
+                                    <h6>评分偏好</h6>
+                                </div>
+                                <div class="category-content">
+                                    <div class="insight-item">
+                                        <div class="insight-icon bg-success">
+                                            <i class="fas fa-thumbs-up"></i>
+                                        </div>
+                                        <div class="insight-text">
+                                            <strong>乐观型用户</strong>
+                                            <p>平均评分 > 4.0，倾向给高分</p>
+                                        </div>
+                                    </div>
+                                    <div class="insight-item">
+                                        <div class="insight-icon bg-primary">
+                                            <i class="fas fa-balance-scale"></i>
+                                        </div>
+                                        <div class="insight-text">
+                                            <strong>中性型用户</strong>
+                                            <p>平均评分 3.0-4.0，评分较均衡</p>
+                                        </div>
+                                    </div>
+                                    <div class="insight-item">
+                                        <div class="insight-icon bg-secondary">
+                                            <i class="fas fa-thumbs-down"></i>
+                                        </div>
+                                        <div class="insight-text">
+                                            <strong>严格型用户</strong>
+                                            <p>平均评分 < 3.0，评分标准较高</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="strategy-panel">
+                <div class="panel-header">
+                    <h4 class="panel-title">
+                        <i class="fas fa-rocket me-2"></i>
+                        策略建议
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <div class="strategy-item">
+                        <div class="strategy-number">01</div>
+                        <div class="strategy-content">
+                            <h6>用户激励体系</h6>
+                            <p>为活跃用户设计积分奖励，提升参与度</p>
+                        </div>
+                    </div>
+                    <div class="strategy-item">
+                        <div class="strategy-number">02</div>
+                        <div class="strategy-content">
+                            <h6>个性化推荐</h6>
+                            <p>基于评分偏好优化推荐算法精准度</p>
+                        </div>
+                    </div>
+                    <div class="strategy-item">
+                        <div class="strategy-number">03</div>
+                        <div class="strategy-content">
+                            <h6>社区互动</h6>
+                            <p>促进用户间交流，建设活跃社区</p>
+                        </div>
+                    </div>
+                    <div class="strategy-item">
+                        <div class="strategy-number">04</div>
+                        <div class="strategy-content">
+                            <h6>新用户引导</h6>
+                            <p>优化新用户体验，提高留存率</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导航操作区域 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="user-navigation-panel">
+                <div class="nav-content">
+                    <h5>探索更多数据维度</h5>
+                    <p>继续深入分析用户行为和系统表现</p>
+                </div>
+                <div class="nav-actions">
+                    <a href="{{ url_for('dashboard') }}" class="nav-btn success">
+                        <i class="fas fa-chart-bar"></i>数据仪表板
+                    </a>
+                    <a href="{{ url_for('analysis') }}" class="nav-btn info">
+                        <i class="fas fa-chart-pie"></i>电影分析
+                    </a>
+                    <a href="{{ url_for('community') }}" class="nav-btn primary">
+                        <i class="fas fa-users"></i>用户社区
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

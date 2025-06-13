@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ discussion.title }} - 社区讨论{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- 返回按钮 -->
+            <div class="mb-3">
+                <a href="{{ url_for('community') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>返回讨论列表
+                </a>
+            </div>
+            
+            <!-- 主讨论 -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="badge bg-primary fs-6">{{ discussion.category }}</span>
+                        <small class="text-muted">{{ discussion.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                    
+                    <h2 class="card-title mb-3 discussion-title">{{ discussion.title }}</h2>
+                    
+                    <div class="card-text mb-4 discussion-content" style="white-space: pre-line;">{{ discussion.content }}</div>
+                    
+                    <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-secondary rounded-circle d-inline-flex align-items-center justify-content-center me-3" 
+                                 style="width: 40px; height: 40px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <div>
+                                <strong class="discussion-author">
+                                    <a href="{{ url_for('user_profile', username=discussion.author) }}" 
+                                       class="text-decoration-none text-primary">
+                                        {{ discussion.author_info.nickname or discussion.author }}
+                                    </a>
+                                </strong>
+                                <div class="small text-muted username">@{{ discussion.author }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-3">
+                            {% if 'username' in session %}
+                            <button class="btn btn-outline-danger btn-sm like-btn" 
+                                    data-discussion-id="{{ discussion_id }}"
+                                    data-liked="false">
+                                <i class="fas fa-heart"></i> 
+                                <span class="like-count">{{ discussion.likes_count }}</span>
+                            </button>
+                            {% else %}
+                            <span class="text-muted">
+                                <i class="fas fa-heart text-danger"></i> {{ discussion.likes_count }}
+                            </span>
+                            {% endif %}
+                            
+                            <span class="text-muted">
+                                <i class="fas fa-comment text-primary"></i> {{ replies|length }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 评论区 -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>
+                        评论 ({{ replies|length }})
+                    </h5>
+                </div>
+                
+                <!-- 发表评论 -->
+                {% if 'username' in session %}
+                <div class="card-body border-bottom">
+                    <form method="post" action="{{ url_for('reply_discussion', discussion_id=discussion_id) }}">
+                        <div class="mb-3">
+                            <textarea class="form-control" name="content" rows="3" 
+                                      placeholder="发表你的评论..." required></textarea>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>发表评论
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
+                
+                <!-- 评论列表 -->
+                <div class="card-body">
+                    {% if replies %}
+                    <div class="comments-list">
+                        {% for reply in replies %}
+                        <div class="comment-item mb-4 {% if not loop.last %}border-bottom pb-4{% endif %}">
+                            <div class="d-flex">
+                                <div class="bg-info rounded-circle d-inline-flex align-items-center justify-content-center me-3" 
+                                     style="width: 35px; height: 35px;">
+                                    <i class="fas fa-user text-white small"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <strong class="reply-author">
+                                                <a href="{{ url_for('user_profile', username=reply.author) }}" 
+                                                   class="text-decoration-none text-primary">
+                                                    {{ reply.author_info.nickname or reply.author }}
+                                                </a>
+                                            </strong>
+                                            <small class="text-muted ms-2 username">@{{ reply.author }}</small>
+                                        </div>
+                                        <small class="text-muted timestamp">{{ reply.created_at.strftime('%m-%d %H:%M') }}</small>
+                                    </div>
+                                    <div class="comment-content reply-content" style="white-space: pre-line;">{{ reply.content }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">还没有评论，来发表第一个评论吧！</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.comment-item {
+    transition: all 0.3s ease;
+}
+
+.comment-item:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+    border-radius: 8px;
+    padding: 10px;
+    margin: -10px;
+}
+
+.like-btn {
+    transition: all 0.3s ease;
+}
+
+.like-btn:hover {
+    transform: scale(1.1);
+}
+
+.like-btn.liked {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.comment-content {
+    line-height: 1.6;
+    color: #ecf0f1 !important;
+    font-family: 'Microsoft YaHei', 'PingFang SC', 'WenQuanYi Micro Hei', 'Segoe UI', sans-serif !important;
+    font-size: 15px !important;
+    -webkit-font-smoothing: antialiased !important;
+}
+
+/* 强制评论输入框可用 */
+.card-body textarea.form-control,
+.card-body input.form-control,
+.card-body input[type="text"],
+.card-body select.form-select {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    color: #2c3e50 !important;
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+    font-size: 16px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    width: 100% !important;
+    height: auto !important;
+    line-height: 1.5 !important;
+    font-family: inherit !important;
+    /* 确保完全可交互 */
+    pointer-events: auto !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    position: relative !important;
+    z-index: 1000 !important;
+    overflow: visible !important;
+    outline: none !important;
+    /* 清除所有可能的干扰 */
+    transform: none !important;
+    clip: none !important;
+    clip-path: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+.card-body textarea.form-control:focus,
+.card-body input.form-control:focus,
+.card-body input[type="text"]:focus,
+.card-body select.form-select:focus {
+    background: rgba(255, 255, 255, 1) !important;
+    border-color: #3498db !important;
+    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25), 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    color: #2c3e50 !important;
+    outline: none !important;
+    transform: none !important;
+    z-index: 1001 !important;
+}
+
+.card-body textarea.form-control::placeholder,
+.card-body input.form-control::placeholder,
+.card-body input[type="text"]::placeholder {
+    color: #7f8c8d !important;
+    opacity: 0.8 !important;
+    font-style: italic !important;
+}
+
+/* 确保表单容器可交互 */
+.card-body,
+.card-body form,
+.card-body form *,
+.mb-3 {
+    overflow: visible !important;
+    pointer-events: auto !important;
+}
+</style>
+
+<script>
+// 评论输入框修复脚本
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== 讨论详情页面调试信息 ===');
+    
+    // 获取所有输入框
+    const inputs = document.querySelectorAll('.card-body textarea, .card-body input, .card-body select');
+    console.log('发现输入元素数量:', inputs.length);
+    
+    inputs.forEach((input, index) => {
+        console.log(`输入元素 ${index + 1}:`, {
+            tagName: input.tagName,
+            name: input.name,
+            type: input.type,
+            placeholder: input.placeholder
+        });
+        
+        // 强制设置输入框属性
+        input.style.pointerEvents = 'auto';
+        input.style.userSelect = 'text';
+        input.style.position = 'relative';
+        input.style.zIndex = '1000';
+        input.style.overflow = 'visible';
+        input.style.background = 'rgba(255, 255, 255, 0.95)';
+        input.style.color = '#2c3e50';
+        input.style.border = '2px solid rgba(255, 255, 255, 0.3)';
+        input.style.borderRadius = '12px';
+        input.style.padding = '12px 16px';
+        input.style.fontSize = '16px';
+        input.style.width = '100%';
+        input.style.display = 'block';
+        input.style.opacity = '1';
+        input.style.visibility = 'visible';
+        input.style.transform = 'none';
+        input.style.clip = 'none';
+        input.style.clipPath = 'none';
+        
+        // 移除可能的干扰属性
+        input.removeAttribute('readonly');
+        input.removeAttribute('disabled');
+        
+        // 添加事件监听器
+        input.addEventListener('focus', function() {
+            console.log('评论输入元素获得焦点:', this.name || this.tagName);
+            this.style.background = 'rgba(255, 255, 255, 1)';
+            this.style.borderColor = '#3498db';
+            this.style.zIndex = '1001';
+        });
+        
+        input.addEventListener('blur', function() {
+            console.log('评论输入元素失去焦点:', this.name || this.tagName);
+            this.style.background = 'rgba(255, 255, 255, 0.95)';
+            this.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            this.style.zIndex = '1000';
+        });
+        
+        input.addEventListener('input', function() {
+            console.log('评论输入内容:', this.name || this.tagName, '=', this.value);
+        });
+        
+        // 测试元素是否可以获得焦点
+        setTimeout(() => {
+            try {
+                input.focus();
+                console.log(`评论输入元素 ${input.name || input.tagName} 可以获得焦点`);
+                setTimeout(() => input.blur(), 100);
+            } catch (e) {
+                console.error(`评论输入元素 ${input.name || input.tagName} 无法获得焦点:`, e);
+            }
+        }, 100 * (index + 1));
+    });
+    
+    console.log('=== 讨论详情页面调试信息结束 ===');
+    
+    // 点赞功能
+    const likeBtn = document.querySelector('.like-btn');
+    if (likeBtn) {
+        console.log('点赞按钮找到，添加事件监听器');
+        likeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('点赞按钮被点击');
+            
+            const discussionId = this.dataset.discussionId;
+            console.log('讨论ID:', discussionId);
+            
+            fetch(`/community/${discussionId}/like`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                console.log('点赞请求响应状态:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('点赞请求响应数据:', data);
+                if (data.status === 'success') {
+                    const likeCount = this.querySelector('.like-count');
+                    likeCount.textContent = data.likes_count;
+                    
+                    if (data.action === 'liked') {
+                        this.classList.add('liked');
+                        this.classList.remove('btn-outline-danger');
+                        this.classList.add('btn-danger');
+                        console.log('已点赞');
+                    } else {
+                        this.classList.remove('liked');
+                        this.classList.remove('btn-danger');
+                        this.classList.add('btn-outline-danger');
+                        console.log('取消点赞');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('点赞请求错误:', error);
+            });
+        });
+    } else {
+        console.log('未找到点赞按钮');
+    }
+});
+</script>
+{% endblock %} 

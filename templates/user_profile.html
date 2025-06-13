@@ -1,0 +1,594 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ user_info.nickname or username }} - 用户资料{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- 用户信息卡片 -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        {% if user_info.avatar %}
+                        <img src="{{ user_info.avatar }}" class="rounded-circle" width="100" height="100" alt="头像">
+                        {% else %}
+                        <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                            <i class="fas fa-user fa-3x text-white"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <h4 class="card-title">{{ user_info.nickname or username }}</h4>
+                    <p class="text-muted">@{{ username }}</p>
+                    
+                    {% if user_info.bio %}
+                    <p class="card-text">{{ user_info.bio }}</p>
+                    {% endif %}
+                    
+                    <div class="row text-center mb-3">
+                        <div class="col-4">
+                            <strong>{{ user_info.followers|length if user_info.followers else 0 }}</strong>
+                            <div class="text-muted small">粉丝</div>
+                        </div>
+                        <div class="col-4">
+                            <strong>{{ user_info.following|length if user_info.following else 0 }}</strong>
+                            <div class="text-muted small">关注</div>
+                        </div>
+                        <div class="col-4">
+                            <strong>{{ rated_movies|length }}</strong>
+                            <div class="text-muted small">评分</div>
+                        </div>
+                    </div>
+                    
+                    {% if user_info.interests %}
+                    <div class="mb-3">
+                        <h6>兴趣标签</h6>
+                        {% for interest in user_info.interests %}
+                        <span class="badge bg-secondary me-1">{{ interest }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if session.username and session.username != username %}
+                    <div class="d-grid gap-2">
+                        <form method="post" action="{{ url_for('follow_user', username=username) }}">
+                            <button type="submit" class="btn btn-primary">关注</button>
+                        </form>
+                    </div>
+                    {% elif is_own_profile %}
+                    <div class="d-grid">
+                        <a href="{{ url_for('edit_profile') }}" class="btn btn-primary edit-profile-btn" 
+                           id="editProfileBtn" 
+                           onclick="console.log('编辑资料按钮点击事件触发'); return true;"
+                           style="pointer-events: auto !important; z-index: 99999 !important; position: relative !important; cursor: pointer !important;">
+                            <i class="fas fa-edit me-2"></i>编辑资料
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-3 text-muted small">
+                        注册时间: {{ user_info.registered_at.strftime('%Y年%m月%d日') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 用户评分的电影 -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star text-warning me-2"></i>
+                        评分过的电影 ({{ rated_movies|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if rated_movies %}
+                    <div class="row">
+                        {% for movie in rated_movies[:12] %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card h-100 movie-card">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <a href="{{ url_for('movie_detail', movie_id=movie.movieId) }}" 
+                                           class="text-decoration-none">
+                                            {{ movie.title[:40] }}{% if movie.title|length > 40 %}...{% endif %}
+                                        </a>
+                                    </h6>
+                                    <p class="card-text">
+                                        <small class="text-muted">{{ movie.genres }}</small>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="rating">
+                                            {% for i in range(1, 6) %}
+                                                {% if i <= movie.user_rating %}
+                                                    <i class="fas fa-star text-warning"></i>
+                                                {% else %}
+                                                    <i class="far fa-star text-muted"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <span class="text-muted ms-1">({{ movie.user_rating }})</span>
+                                        </div>
+                                    </div>
+                                    {% if movie.user_comment %}
+                                    <div class="mt-2">
+                                        <small class="text-muted">{{ movie.user_comment[:50] }}{% if movie.user_comment|length > 50 %}...{% endif %}</small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if rated_movies|length > 12 %}
+                    <div class="text-center mt-3">
+                        <button class="btn btn-outline-primary" onclick="showMoreMovies()">查看更多</button>
+                    </div>
+                    {% endif %}
+                    
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-film fa-3x mb-3"></i>
+                        <p>还没有评分过任何电影</p>
+                        {% if is_own_profile %}
+                        <a href="{{ url_for('search') }}" class="btn btn-primary">去评分电影</a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 用户资料页面样式优化 */
+.movie-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.movie-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.rating .fas.fa-star {
+    color: #ffc107;
+}
+
+.rating .far.fa-star {
+    color: #6c757d;
+}
+
+/* 确保所有输入框和表单元素可用 */
+.card-body input.form-control,
+.card-body input[type="text"],
+.card-body input[type="email"],
+.card-body textarea.form-control,
+.card-body select.form-select,
+.card-body button[type="submit"] {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    color: #2c3e50 !important;
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+    font-size: 16px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    width: 100% !important;
+    height: auto !important;
+    line-height: 1.5 !important;
+    font-family: inherit !important;
+    /* 确保完全可交互 */
+    pointer-events: auto !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    position: relative !important;
+    z-index: 1000 !important;
+    overflow: visible !important;
+    outline: none !important;
+    /* 清除所有可能的干扰 */
+    transform: none !important;
+    clip: none !important;
+    clip-path: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+.card-body button[type="submit"] {
+    background: linear-gradient(135deg, #3498db, #5dade2) !important;
+    color: white !important;
+    border: none !important;
+    cursor: pointer !important;
+}
+
+.card-body button[type="submit"]:hover {
+    background: linear-gradient(135deg, #2980b9, #3498db) !important;
+    transform: translateY(-2px) !important;
+}
+
+.card-body input.form-control:focus,
+.card-body input[type="text"]:focus,
+.card-body input[type="email"]:focus,
+.card-body textarea.form-control:focus,
+.card-body select.form-select:focus {
+    background: rgba(255, 255, 255, 1) !important;
+    border-color: #3498db !important;
+    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25), 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    color: #2c3e50 !important;
+    outline: none !important;
+    transform: none !important;
+    z-index: 1001 !important;
+}
+
+.card-body input.form-control::placeholder,
+.card-body input[type="text"]::placeholder,
+.card-body input[type="email"]::placeholder,
+.card-body textarea.form-control::placeholder {
+    color: #7f8c8d !important;
+    opacity: 0.8 !important;
+    font-style: italic !important;
+}
+
+/* 确保表单容器可交互 */
+.card-body,
+.card-body form,
+.card-body form *,
+.d-grid {
+    overflow: visible !important;
+    pointer-events: auto !important;
+}
+
+/* 修复编辑资料链接按钮 */
+.d-grid a.btn,
+.d-grid a.btn-primary,
+a.btn,
+a.btn-primary {
+    /* 确保链接按钮完全可点击 */
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    position: relative !important;
+    z-index: 1000 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    
+    /* 清除干扰样式 */
+    transform: none !important;
+    clip: none !important;
+    clip-path: none !important;
+    
+    /* 美化样式 */
+    background: linear-gradient(135deg, #3498db, #5dade2) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    text-align: center !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
+}
+
+.d-grid a.btn:hover,
+.d-grid a.btn-primary:hover,
+a.btn:hover,
+a.btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9, #3498db) !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4) !important;
+}
+
+.d-grid a.btn:active,
+.d-grid a.btn-primary:active,
+a.btn:active,
+a.btn-primary:active {
+    transform: translateY(0px) !important;
+}
+
+/* 超强力修复编辑资料按钮 */
+#editProfileBtn,
+.edit-profile-btn,
+a[href*="edit_profile"] {
+    /* 绝对确保可点击 */
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    position: relative !important;
+    z-index: 9999 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    
+    /* 清除所有可能的干扰 */
+    transform: none !important;
+    clip: auto !important;
+    clip-path: none !important;
+    mask: none !important;
+    -webkit-mask: none !important;
+    
+    /* 强制设置有效的链接样式 */
+    background: linear-gradient(135deg, #3498db, #5dade2) !important;
+    color: #ffffff !important;
+    border: 2px solid #3498db !important;
+    border-radius: 12px !important;
+    padding: 14px 20px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    text-align: center !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 45px !important;
+    line-height: 1.4 !important;
+}
+
+#editProfileBtn:hover,
+.edit-profile-btn:hover,
+a[href*="edit_profile"]:hover {
+    background: linear-gradient(135deg, #2980b9, #3498db) !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    transform: translateY(-2px) scale(1.02) !important;
+    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4) !important;
+    border-color: #2980b9 !important;
+}
+
+#editProfileBtn:active,
+.edit-profile-btn:active,
+a[href*="edit_profile"]:active {
+    transform: translateY(0px) scale(1) !important;
+    box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3) !important;
+}
+
+#editProfileBtn:focus,
+.edit-profile-btn:focus,
+a[href*="edit_profile"]:focus {
+    outline: 3px solid rgba(52, 152, 219, 0.5) !important;
+    outline-offset: 2px !important;
+    z-index: 10000 !important;
+}
+</style>
+
+<script>
+function showMoreMovies() {
+    // 这里可以添加AJAX加载更多电影的功能
+    alert('功能开发中...');
+}
+
+// 用户资料页面输入框修复脚本
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== 用户资料页面调试信息 ===');
+    
+    // 超强力修复编辑资料按钮
+    const editButtons = [
+        document.getElementById('editProfileBtn'),
+        document.querySelector('.edit-profile-btn'),
+        document.querySelector('a[href*="edit_profile"]')
+    ].filter(btn => btn !== null);
+    
+    if (editButtons.length > 0) {
+        console.log('找到编辑资料按钮数量:', editButtons.length, editButtons);
+        
+        editButtons.forEach((editButton, index) => {
+            console.log(`处理编辑资料按钮 ${index + 1}:`, editButton);
+            
+            // 超强力样式修复
+            const superStyles = {
+                'pointer-events': 'auto',
+                'cursor': 'pointer',
+                'position': 'relative',
+                'z-index': '9999',
+                'display': 'block',
+                'visibility': 'visible',
+                'opacity': '1',
+                'overflow': 'visible',
+                'transform': 'none',
+                'clip': 'auto',
+                'clip-path': 'none',
+                'mask': 'none',
+                '-webkit-mask': 'none',
+                'background': 'linear-gradient(135deg, #3498db, #5dade2)',
+                'color': '#ffffff',
+                'border': '2px solid #3498db',
+                'border-radius': '12px',
+                'padding': '14px 20px',
+                'font-size': '16px',
+                'font-weight': '600',
+                'text-decoration': 'none',
+                'text-align': 'center',
+                'width': '100%',
+                'min-height': '45px'
+            };
+            
+            Object.entries(superStyles).forEach(([prop, value]) => {
+                editButton.style.setProperty(prop, value, 'important');
+            });
+            
+            // 移除可能的禁用属性
+            editButton.removeAttribute('disabled');
+            editButton.removeAttribute('readonly');
+            
+            // 确保href属性存在 - 终极修复版
+            if (!editButton.href || editButton.href === '#' || editButton.href.includes('#')) {
+                const editUrl = '/profile/edit';
+                editButton.href = editUrl;
+                editButton.setAttribute('href', editUrl);
+                console.log('✅ 强制设置编辑按钮href为:', editUrl);
+            }
+            
+            // 终极修复：直接在按钮上绑定强制跳转
+            editButton.onclick = function(e) {
+                e.preventDefault();
+                console.log('🚀 编辑资料按钮强制跳转触发!');
+                const targetUrl = '/profile/edit';
+                console.log('跳转到:', targetUrl);
+                window.location.href = targetUrl;
+                return false;
+            };
+            
+            // 多重点击事件监听器
+            ['click', 'mousedown', 'touchstart'].forEach(eventType => {
+                editButton.addEventListener(eventType, function(e) {
+                    console.log(`编辑资料按钮 ${eventType} 事件触发!`, this.href);
+                    if (eventType === 'click') {
+                        if (this.href && this.href !== '#') {
+                            console.log('✅ 编辑资料按钮点击成功，正在跳转到:', this.href);
+                            // 强制跳转（以防万一）
+                            setTimeout(() => {
+                                if (window.location.href === this.href) {
+                                    console.log('✅ 页面跳转成功');
+                                } else {
+                                    console.log('🔄 手动跳转页面');
+                                    window.location.href = this.href;
+                                }
+                            }, 100);
+                        } else {
+                            e.preventDefault();
+                            console.error('❌ 编辑资料按钮没有有效的href属性');
+                            // 手动跳转
+                            window.location.href = '{{ url_for("edit_profile") }}';
+                        }
+                    }
+                }, true); // 使用捕获阶段
+            });
+            
+            // 悬停效果
+            editButton.addEventListener('mouseenter', function() {
+                console.log('编辑资料按钮悬停');
+                this.style.setProperty('background', 'linear-gradient(135deg, #2980b9, #3498db)', 'important');
+                this.style.setProperty('transform', 'translateY(-2px) scale(1.02)', 'important');
+            });
+            
+            editButton.addEventListener('mouseleave', function() {
+                this.style.setProperty('background', 'linear-gradient(135deg, #3498db, #5dade2)', 'important');
+                this.style.setProperty('transform', 'none', 'important');
+            });
+            
+            // 焦点测试
+            setTimeout(() => {
+                try {
+                    editButton.focus();
+                    console.log(`✅ 编辑资料按钮 ${index + 1} 可以获得焦点`);
+                    
+                    // 模拟点击测试
+                    setTimeout(() => {
+                        editButton.blur();
+                        // 测试点击区域
+                        const rect = editButton.getBoundingClientRect();
+                        console.log(`编辑按钮 ${index + 1} 位置:`, {
+                            top: rect.top,
+                            left: rect.left,
+                            width: rect.width,
+                            height: rect.height,
+                            visible: rect.width > 0 && rect.height > 0
+                        });
+                    }, 200);
+                } catch (e) {
+                    console.error(`❌ 编辑资料按钮 ${index + 1} 无法获得焦点:`, e);
+                }
+            }, 500 * (index + 1));
+        });
+    } else {
+        console.log('⚠️ 未找到任何编辑资料按钮 - 可能不是自己的资料页面');
+    }
+    
+    // 获取所有输入框和按钮
+    const inputs = document.querySelectorAll('.card-body input, .card-body textarea, .card-body select, .card-body button, a.btn');
+    console.log('发现交互元素数量:', inputs.length);
+    
+    inputs.forEach((input, index) => {
+        console.log(`交互元素 ${index + 1}:`, {
+            tagName: input.tagName,
+            type: input.type,
+            className: input.className
+        });
+        
+        // 强制设置元素属性
+        input.style.pointerEvents = 'auto';
+        input.style.position = 'relative';
+        input.style.zIndex = '1000';
+        input.style.overflow = 'visible';
+        input.style.opacity = '1';
+        input.style.visibility = 'visible';
+        input.style.transform = 'none';
+        
+        // 移除可能的干扰属性
+        input.removeAttribute('readonly');
+        input.removeAttribute('disabled');
+        
+        // 为输入框添加事件监听器
+        if (input.tagName === 'INPUT' || input.tagName === 'TEXTAREA' || input.tagName === 'SELECT') {
+            input.addEventListener('focus', function() {
+                console.log('用户资料页面元素获得焦点:', this.name || this.id || this.tagName);
+                this.style.zIndex = '1001';
+            });
+            
+            input.addEventListener('blur', function() {
+                console.log('用户资料页面元素失去焦点:', this.name || this.id || this.tagName);
+                this.style.zIndex = '1000';
+            });
+            
+            input.addEventListener('input', function() {
+                console.log('用户资料页面输入内容:', this.name || this.id || this.tagName, '=', this.value);
+            });
+        }
+        
+        // 为按钮添加点击监听器
+        if (input.tagName === 'BUTTON') {
+            input.addEventListener('click', function(e) {
+                console.log('用户资料页面按钮被点击:', this.textContent.trim());
+            });
+        }
+    });
+    
+    console.log('=== 用户资料页面调试信息结束 ===');
+    
+    // 终极页面状态检查
+    setInterval(function() {
+        const editBtn = document.getElementById('editProfileBtn');
+        if (editBtn) {
+            const rect = editBtn.getBoundingClientRect();
+            console.log('⚡ 编辑按钮状态检查:', {
+                可见: rect.width > 0 && rect.height > 0,
+                href: editBtn.href,
+                样式: window.getComputedStyle(editBtn).pointerEvents,
+                zIndex: window.getComputedStyle(editBtn).zIndex
+            });
+        }
+    }, 10000); // 每10秒检查一次
+});
+
+// 页面可见性监听 - 确保返回页面时功能正常
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        console.log('🔄 页面重新可见，重新初始化资料页面功能');
+        setTimeout(() => {
+            const editBtn = document.getElementById('editProfileBtn');
+            if (editBtn) {
+                editBtn.style.setProperty('pointer-events', 'auto', 'important');
+                editBtn.style.setProperty('z-index', '99999', 'important');
+                editBtn.onclick = function(e) {
+                    e.preventDefault();
+                    console.log('🚀 编辑资料按钮强制跳转触发!');
+                    window.location.href = '/profile/edit';
+                    return false;
+                };
+            }
+        }, 100);
+    }
+});
+</script>
+{% endblock %} 

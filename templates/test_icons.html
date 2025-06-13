@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}图标测试 - 电影评分系统{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>图标显示测试</h2>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>常用图标测试</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <p><i class="fas fa-home"></i> 首页 (fas fa-home)</p>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <p><i class="fas fa-user"></i> 用户 (fas fa-user)</p>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <p><i class="fas fa-search"></i> 搜索 (fas fa-search)</p>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <p><i class="fas fa-heart"></i> 点赞 (fas fa-heart)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <p><i class="fas fa-comment"></i> 评论 (fas fa-comment)</p>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <p><i class="fas fa-star"></i> 星星 (fas fa-star)</p>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <p><i class="fas fa-plus"></i> 添加 (fas fa-plus)</p>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <p><i class="fas fa-arrow-left"></i> 返回 (fas fa-arrow-left)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>按钮中的图标测试</h3>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-primary me-2">
+                        <i class="fas fa-plus me-2"></i>发布讨论
+                    </button>
+                    <button class="btn btn-success me-2">
+                        <i class="fas fa-heart me-2"></i>点赞
+                    </button>
+                    <button class="btn btn-info me-2">
+                        <i class="fas fa-comment me-2"></i>评论
+                    </button>
+                    <button class="btn btn-warning me-2">
+                        <i class="fas fa-star me-2"></i>收藏
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3>社区页面图标测试</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-primary">
+                            <i class="fas fa-comments me-1"></i>讨论
+                        </span>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>刚刚
+                        </small>
+                    </div>
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-secondary rounded-circle d-inline-flex align-items-center justify-content-center me-2" 
+                             style="width: 30px; height: 30px;">
+                            <i class="fas fa-user text-white small"></i>
+                        </div>
+                        <span>用户头像测试</span>
+                    </div>
+                    
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-heart"></i> <span>5</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-comment"></i> 3
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

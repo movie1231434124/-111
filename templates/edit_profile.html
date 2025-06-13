@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑资料 - 电影评分系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 重置所有可能的干扰样式 */
+        * {
+            box-sizing: border-box !important;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 25%, #4a6741 50%, #2c3e50 75%, #1a252f 100%) !important;
+            background-size: 400% 400% !important;
+            animation: gradientShift 15s ease infinite !important;
+            color: #ecf0f1 !important;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'WenQuanYi Micro Hei', 'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif !important;
+            min-height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden !important;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* 系统一致的背景粒子效果 */
+        body::before {
+            content: '' !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(52, 152, 219, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(155, 89, 182, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(52, 152, 219, 0.15) 0%, transparent 50%) !important;
+            pointer-events: none !important;
+            z-index: -1 !important;
+        }
+        
+        .main-container {
+            padding: 20px !important;
+            min-height: 100vh !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            animation: fadeInUp 0.8s ease-out !important;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .edit-card {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border-radius: 20px !important;
+            padding: 40px !important;
+            width: 100% !important;
+            max-width: 700px !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+            position: relative !important;
+            overflow: hidden !important;
+            animation: cardFloat 6s ease-in-out infinite !important;
+        }
+        
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        .edit-card::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -100% !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.1), transparent) !important;
+            animation: shimmer 4s infinite !important;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .card-title {
+            color: #ecf0f1 !important;
+            font-size: 32px !important;
+            font-weight: 700 !important;
+            text-align: center !important;
+            margin-bottom: 40px !important;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+            position: relative !important;
+            animation: titleGlow 3s ease-in-out infinite !important;
+        }
+        
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(52, 152, 219, 0.3); }
+            50% { text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 30px rgba(52, 152, 219, 0.5); }
+        }
+        
+        .card-title i {
+            color: #3498db !important;
+            animation: iconPulse 3s ease-in-out infinite !important;
+        }
+        
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); color: #3498db; }
+            50% { transform: scale(1.1); color: #5dade2; }
+        }
+        
+        .form-group {
+            margin-bottom: 30px !important;
+            animation: slideInLeft 0.6s ease-out !important;
+            animation-fill-mode: both !important;
+        }
+        
+        .form-group:nth-child(1) { animation-delay: 0.1s !important; }
+        .form-group:nth-child(2) { animation-delay: 0.2s !important; }
+        .form-group:nth-child(3) { animation-delay: 0.3s !important; }
+        .form-group:nth-child(4) { animation-delay: 0.4s !important; }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .form-label {
+            color: #ecf0f1 !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            margin-bottom: 12px !important;
+            display: block !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+            position: relative !important;
+        }
+        
+        .form-label::before {
+            content: '' !important;
+            position: absolute !important;
+            left: -15px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: 4px !important;
+            height: 20px !important;
+            background: linear-gradient(135deg, #3498db, #5dade2) !important;
+            border-radius: 2px !important;
+            opacity: 0.8 !important;
+        }
+        
+        .form-label i {
+            color: #3498db !important;
+            margin-right: 8px !important;
+            font-size: 14px !important;
+        }
+        
+        /* 最强力的输入框样式 - 系统主题 + 美化效果 */
+        .edit-input,
+        input.edit-input,
+        textarea.edit-input {
+            width: 100% !important;
+            height: auto !important;
+            min-height: 50px !important;
+            padding: 16px 20px !important;
+            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 12px !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            color: #2c3e50 !important;
+            font-size: 16px !important;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'WenQuanYi Micro Hei', 'Segoe UI', sans-serif !important;
+            line-height: 1.5 !important;
+            box-sizing: border-box !important;
+            
+            /* 确保可交互 */
+            pointer-events: auto !important;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            cursor: text !important;
+            
+            /* 定位和显示 */
+            position: relative !important;
+            z-index: 1000 !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            
+            /* 清除干扰 */
+            transform: none !important;
+            clip: none !important;
+            clip-path: none !important;
+            overflow: visible !important;
+            outline: none !important;
+            
+            /* 系统风格美化效果 */
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(10px) !important;
+        }
+        
+        .edit-input:focus,
+        input.edit-input:focus,
+        textarea.edit-input:focus {
+            border-color: #3498db !important;
+            background: rgba(255, 255, 255, 1) !important;
+            color: #2c3e50 !important;
+            box-shadow: 
+                0 0 0 0.25rem rgba(52, 152, 219, 0.25),
+                0 8px 25px rgba(52, 152, 219, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+            outline: none !important;
+            z-index: 1001 !important;
+            transform: translateY(-2px) scale(1.02) !important;
+        }
+        
+        .edit-input:hover:not(:focus),
+        input.edit-input:hover:not(:focus),
+        textarea.edit-input:hover:not(:focus) {
+            border-color: rgba(52, 152, 219, 0.5) !important;
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+            transform: translateY(-1px) !important;
+        }
+        
+        .edit-input::placeholder,
+        input.edit-input::placeholder,
+        textarea.edit-input::placeholder {
+            color: #7f8c8d !important;
+            opacity: 0.7 !important;
+            font-style: italic !important;
+        }
+        
+        .form-text {
+            color: #bdc3c7 !important;
+            font-size: 13px !important;
+            margin-top: 8px !important;
+            font-style: italic !important;
+            opacity: 0.9 !important;
+        }
+        
+        .btn-container {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin-top: 40px !important;
+            animation: slideInUp 0.6s ease-out 0.5s both !important;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .btn {
+            padding: 14px 28px !important;
+            border-radius: 12px !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            text-decoration: none !important;
+            border: none !important;
+            cursor: pointer !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative !important;
+            overflow: hidden !important;
+            text-transform: none !important;
+            letter-spacing: 0.5px !important;
+        }
+        
+        .btn::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -100% !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+            transition: left 0.6s !important;
+        }
+        
+        .btn:hover::before {
+            left: 100% !important;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #5dade2) !important;
+            color: #ffffff !important;
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3) !important;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2980b9, #3498db) !important;
+            color: #ffffff !important;
+            transform: translateY(-3px) scale(1.05) !important;
+            box-shadow: 0 12px 35px rgba(52, 152, 219, 0.4) !important;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #bdc3c7) !important;
+            color: #2c3e50 !important;
+            box-shadow: 0 8px 25px rgba(149, 165, 166, 0.3) !important;
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #7f8c8d, #95a5a6) !important;
+            color: #2c3e50 !important;
+            transform: translateY(-3px) scale(1.05) !important;
+            box-shadow: 0 12px 35px rgba(149, 165, 166, 0.4) !important;
+        }
+        
+        .back-link {
+            position: absolute !important;
+            top: 25px !important;
+            left: 25px !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px) !important;
+            color: #ecf0f1 !important;
+            padding: 12px 24px !important;
+            border-radius: 25px !important;
+            text-decoration: none !important;
+            font-weight: 600 !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            animation: slideInDown 0.6s ease-out !important;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.15) !important;
+            color: #3498db !important;
+            text-decoration: none !important;
+            transform: translateY(-2px) scale(1.05) !important;
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.2) !important;
+        }
+        
+        .row {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            margin: 0 -15px !important;
+        }
+        
+        .col-6 {
+            flex: 0 0 50% !important;
+            padding: 0 15px !important;
+        }
+        
+        .account-info {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px) !important;
+            padding: 20px !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .account-info:hover {
+            background: rgba(255, 255, 255, 0.15) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+            border-color: rgba(52, 152, 219, 0.3) !important;
+        }
+        
+        .account-info-item {
+            margin-bottom: 12px !important;
+            color: #ecf0f1 !important;
+            font-size: 15px !important;
+        }
+        
+        .account-info-item:last-child {
+            margin-bottom: 0 !important;
+        }
+        
+        .account-info-item strong {
+            color: #3498db !important;
+            margin-right: 8px !important;
+        }
+        
+        .account-info-item i {
+            color: #3498db !important;
+            margin-right: 8px !important;
+            width: 16px !important;
+            text-align: center !important;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .col-6 {
+                flex: 0 0 100% !important;
+                margin-bottom: 15px !important;
+            }
+            
+            .edit-card {
+                margin: 15px !important;
+                padding: 25px !important;
+                border-radius: 15px !important;
+            }
+            
+            .card-title {
+                font-size: 26px !important;
+                margin-bottom: 30px !important;
+            }
+            
+            .btn-container {
+                flex-direction: column !important;
+                gap: 20px !important;
+            }
+            
+            .btn {
+                width: 100% !important;
+                padding: 16px 20px !important;
+            }
+            
+            .back-link {
+                top: 15px !important;
+                left: 15px !important;
+                padding: 10px 18px !important;
+                font-size: 14px !important;
+            }
+            
+            .main-container {
+                padding: 10px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .edit-card {
+                margin: 10px !important;
+                padding: 20px !important;
+            }
+            
+            .card-title {
+                font-size: 22px !important;
+            }
+            
+            .edit-input,
+            input.edit-input,
+            textarea.edit-input {
+                padding: 14px 16px !important;
+                font-size: 15px !important;
+                min-height: 45px !important;
+            }
+        }
+        
+        /* 系统风格的装饰效果 */
+        .movie-sparkle {
+            position: absolute !important;
+            width: 6px !important;
+            height: 6px !important;
+            background: #3498db !important;
+            border-radius: 50% !important;
+            animation: movieSparkle 3s linear infinite !important;
+            opacity: 0.7 !important;
+        }
+        
+        @keyframes movieSparkle {
+            0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1) rotate(180deg); }
+        }
+    </style>
+</head>
+<body>
+    <a href="{{ url_for('user_profile', username=session.username) }}" class="back-link">
+        <i class="fas fa-arrow-left me-2"></i>返回资料页
+    </a>
+    
+    <!-- 系统风格的装饰效果 -->
+    <div class="movie-sparkle" style="top: 15%; left: 25%; animation-delay: 0s;"></div>
+    <div class="movie-sparkle" style="top: 25%; left: 75%; animation-delay: 1s;"></div>
+    <div class="movie-sparkle" style="top: 65%; left: 15%; animation-delay: 2s;"></div>
+    <div class="movie-sparkle" style="top: 75%; left: 85%; animation-delay: 1.5s;"></div>
+    <div class="movie-sparkle" style="top: 40%; left: 60%; animation-delay: 0.5s;"></div>
+    
+    <div class="main-container">
+        <div class="edit-card">
+            <h1 class="card-title">
+                <i class="fas fa-user-edit me-2"></i>
+                编辑个人资料
+            </h1>
+            
+            <form method="post" autocomplete="on">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="nickname" class="form-label">
+                                <i class="fas fa-signature"></i>昵称
+                            </label>
+                            <input type="text" 
+                                   class="edit-input" 
+                                   id="nickname" 
+                                   name="nickname" 
+                                   value="{{ user_info.nickname or '' }}" 
+                                   placeholder="请输入您的昵称"
+                                   autocomplete="name"
+                                   tabindex="1">
+                            <div class="form-text">显示给其他用户的名称</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope"></i>邮箱
+                            </label>
+                            <input type="email" 
+                                   class="edit-input" 
+                                   id="email" 
+                                   name="email" 
+                                   value="{{ user_info.email or '' }}" 
+                                   placeholder="请输入邮箱地址"
+                                   autocomplete="email"
+                                   tabindex="2">
+                            <div class="form-text">用于找回密码和接收通知</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bio" class="form-label">
+                        <i class="fas fa-quote-left"></i>个人简介
+                    </label>
+                    <textarea class="edit-input" 
+                              id="bio" 
+                              name="bio" 
+                              rows="4" 
+                              placeholder="介绍一下自己吧，分享您对电影的独特见解..."
+                              tabindex="3">{{ user_info.bio or '' }}</textarea>
+                    <div class="form-text">最多200字，展示您的个性</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="interests" class="form-label">
+                        <i class="fas fa-tags"></i>兴趣标签
+                    </label>
+                    <input type="text" 
+                           class="edit-input" 
+                           id="interests" 
+                           name="interests" 
+                           value="{{ user_info.interests|join(', ') if user_info.interests else '' }}" 
+                           placeholder="科幻电影, 悬疑片, 动作片, 文艺片..."
+                           tabindex="4">
+                    <div class="form-text">用逗号分隔多个标签，帮助找到同好</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-id-card"></i>账户信息
+                    </label>
+                    <div class="account-info">
+                        <div class="account-info-item">
+                            <i class="fas fa-user"></i>
+                            <strong>用户名:</strong> {{ session.username }}
+                        </div>
+                        <div class="account-info-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <strong>注册时间:</strong> {{ user_info.registered_at.strftime('%Y年%m月%d日') }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <a href="{{ url_for('user_profile', username=session.username) }}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>取消
+                    </a>
+                    <button type="submit" class="btn btn-primary" tabindex="5">
+                        <i class="fas fa-save me-2"></i>保存修改
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 强制输入框修复脚本 + 系统主题
+        (function() {
+            'use strict';
+            
+            function forceInputFix() {
+                console.log('=== 编辑资料页面修复脚本启动 ===');
+                
+                // 查找所有输入元素
+                const inputs = document.querySelectorAll('.edit-input, input, textarea');
+                console.log('找到输入元素:', inputs.length);
+                
+                inputs.forEach((input, index) => {
+                    console.log(`处理输入元素 ${index + 1}:`, input.id || input.name);
+                    
+                    // 移除禁用属性
+                    input.removeAttribute('readonly');
+                    input.removeAttribute('disabled');
+                    
+                    // 强制设置关键样式
+                    const criticalStyles = {
+                        'pointer-events': 'auto',
+                        'user-select': 'text',
+                        'cursor': 'text',
+                        'position': 'relative',
+                        'z-index': '1000',
+                        'display': 'block',
+                        'visibility': 'visible',
+                        'opacity': '1',
+                        'background': 'rgba(255, 255, 255, 0.95)',
+                        'color': '#2c3e50',
+                        'border': '2px solid rgba(255, 255, 255, 0.3)',
+                        'width': '100%',
+                        'box-sizing': 'border-box'
+                    };
+                    
+                    Object.entries(criticalStyles).forEach(([prop, value]) => {
+                        input.style.setProperty(prop, value, 'important');
+                    });
+                    
+                    // 添加事件监听器
+                    input.addEventListener('focus', function() {
+                        console.log('输入框获得焦点:', this.id || this.name);
+                        this.style.setProperty('border-color', '#3498db', 'important');
+                        this.style.setProperty('background', 'rgba(255, 255, 255, 1)', 'important');
+                        this.style.setProperty('transform', 'translateY(-2px) scale(1.02)', 'important');
+                    });
+                    
+                    input.addEventListener('blur', function() {
+                        console.log('输入框失去焦点:', this.id || this.name);
+                        this.style.setProperty('border-color', 'rgba(255, 255, 255, 0.3)', 'important');
+                        this.style.setProperty('background', 'rgba(255, 255, 255, 0.95)', 'important');
+                        this.style.setProperty('transform', 'none', 'important');
+                    });
+                    
+                    input.addEventListener('input', function() {
+                        console.log('输入内容变化:', this.id || this.name, '=', this.value);
+                    });
+                    
+                    input.addEventListener('click', function() {
+                        console.log('点击输入框:', this.id || this.name);
+                        this.focus();
+                    });
+                    
+                    // 测试焦点
+                    setTimeout(() => {
+                        try {
+                            input.focus();
+                            console.log(`输入框 ${input.id || input.name} 焦点测试成功`);
+                            setTimeout(() => input.blur(), 100);
+                        } catch (e) {
+                            console.error(`输入框 ${input.id || input.name} 焦点测试失败:`, e);
+                        }
+                    }, 100 * (index + 1));
+                });
+                
+                console.log('=== 修复脚本完成 ===');
+            }
+            
+            // 多重执行保证
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', forceInputFix);
+            } else {
+                forceInputFix();
+            }
+            
+            setTimeout(forceInputFix, 500);
+            setTimeout(forceInputFix, 1000);
+            setTimeout(forceInputFix, 2000);
+            
+            // 终极输入框修复 - 每5秒执行一次
+            setInterval(function() {
+                const inputs = document.querySelectorAll('.edit-input, input, textarea');
+                inputs.forEach(input => {
+                    input.removeAttribute('readonly');
+                    input.removeAttribute('disabled');
+                    input.style.setProperty('pointer-events', 'auto', 'important');
+                    input.style.setProperty('user-select', 'text', 'important');
+                    input.style.setProperty('background', 'rgba(255, 255, 255, 0.95)', 'important');
+                    input.style.setProperty('color', '#2c3e50', 'important');
+                });
+            }, 5000);
+            
+            // 表单验证
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.querySelector('form');
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        console.log('表单提交');
+                        
+                        const nickname = document.getElementById('nickname');
+                        const bio = document.getElementById('bio');
+                        
+                        if (nickname && nickname.value.trim().length > 50) {
+                            alert('昵称不能超过50个字符');
+                            e.preventDefault();
+                            return false;
+                        }
+                        
+                        if (bio && bio.value.trim().length > 200) {
+                            alert('个人简介不能超过200个字符');
+                            e.preventDefault();
+                            return false;
+                        }
+                        
+                        // 成功提交的视觉反馈
+                        const submitBtn = document.querySelector('.btn-primary');
+                        if (submitBtn) {
+                            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>保存中...';
+                            submitBtn.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+                        }
+                        
+                        console.log('✅ 表单验证通过');
+                    });
+                }
+                
+                // 添加系统风格的动态效果
+                function createSystemSparkle() {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'movie-sparkle';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.animationDelay = Math.random() * 3 + 's';
+                    document.body.appendChild(sparkle);
+                    
+                    setTimeout(() => {
+                        if (sparkle.parentNode) {
+                            sparkle.parentNode.removeChild(sparkle);
+                        }
+                    }, 3000);
+                }
+                
+                // 每3秒创建一个新的装饰效果
+                setInterval(createSystemSparkle, 3000);
+            });
+            
+        })();
+    </script>
+</body>
+</html>
